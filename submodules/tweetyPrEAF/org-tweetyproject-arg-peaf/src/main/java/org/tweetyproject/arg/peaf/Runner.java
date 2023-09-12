@@ -104,7 +104,10 @@ public class Runner {
         }
     }
 
-    private static void runAnalyses(String outputFilePath, AIFJSONTheory aifJSON, PEEAFTheory peeafTheory, PEEAFToPEAFConverter peeafConverter) throws IOException {
+    private static void runAnalyses(String outputFilePath,
+                                    AIFJSONTheory aifJSON,
+                                    PEEAFTheory peeafTheory,
+                                    PEEAFToPEAFConverter peeafConverter) throws IOException {
         NamedPEAFTheory peaf;
         int count = 0;
         for (AIFJSONAnalysis analysis : aifJSON.analyses) {

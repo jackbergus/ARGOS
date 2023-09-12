@@ -31,6 +31,15 @@
 	    <name>TweetyProject MVN Repository</name>
     	<url>https://tweetyproject.org/mvn</url>
 	</repository>
+      <repository>
+          <id>isula</id>
+          <url>https://packagecloud.io/cgavidia/isula/maven2
+          </url>
+      </repository>
+      <repository>
+          <id>gurobi</id>
+          <url>https://bio.informatik.uni-jena.de/repository/libs-release-oss/</url>
+      </repository>
   </repositories>
 
   <licenses>
