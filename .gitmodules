@@ -1,9 +1,3 @@
 #[submodule "submodules/dgdl"]
 #	path = submodules/dgdl
 #	url = git@github.com:jackbergus/dgdl-parser.git
-[submodule "submodules/argmine"]
-	path = submodules/argmine
-	url = git@github.com:jackbergus/ArgMine.git
-#[submodule "submodules/dgep-ws"]
-#	path = submodules/dgep-ws
-#	url = git@github.com:jackbergus/dgep-ws.git
