@@ -10,8 +10,7 @@ mongo/
 *__pycache__/
 *.py[cod]
 *$py.class
-haxe/protocol/*
-haxe/python3/*
-haxe/cpp/*
-haxe/cs/*
->>>>>>> new-branch-on-dgep
+broker/haxe/protocol/*
+broker/haxe/python3/*
+broker/haxe/cpp/*
+broker/haxe/cs/*
