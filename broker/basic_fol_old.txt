@@ -1,0 +1,54 @@
+∀x∈{o}.
+
+game ≝⟪
+
+BOGUS {
+    turns{magnitude:single,ordering:strict}
+    roles{speaker,listener}
+    players{min:2, max:undefined}
+    player{id:Proposer,roles{speaker}}
+    player{id:Evaluator,roles{listener}}
+    ⟦ store { id: Stack‖x‖, owner: shared, structure: stack, visibility : public   }
+    store { id: Players‖x‖, owner: shared, structure: stack, visibility : public  }
+    ⟧(" ")
+
+    rule{id:StartingRule, scope:initial, { ⟦ move(add, next, Subscribe‖x‖, Evaluator)
+    ⟧(" & ") }}
+
+⟦
+    ////// Section: ‖x‖
+
+    // The publisher stops all the subscribers to register and to do whatsever operation, then, it starts adding the data
+    interaction { StartPublish‖x‖ , { move(delete, next, Subscribe‖x‖, $Evaluator, Evaluator) &
+                                   move(add, next, Publish‖x‖, $Proposer, {p}, Proposer)
+                                 }
+                }
+    // This might have been better expressed with a while-true loop, but anyway, expressing that the publisher shall
+    // repeat in the stack as many arguments as the number of players, while allowing the players only to publish
+    interaction { Publish‖x‖ , {
+                                if { magnitude(Stack‖x‖, shared, smaller, Players‖x‖, shared) } then
+                                { store(add, {p}, Stack‖x‖, listener) &
+                                  move(add, next, Publish‖x‖, $Proposer, {p}, Proposer) }
+                                // When I reach the maximum capacity, I enforce all the players to re-register if they want to
+                                // subscribe to the next round, and allowing all the players to consume. The language seems
+                                else
+                                { store(empty, {"bogus"}, Players‖x‖, listener) &
+                                  move(add, next, Consume‖x‖, $Evaluator, Evaluator)  }
+                            }
+                }
+
+    //interaction { Consume‖x‖ , { store(get, {p}, Stack‖x‖, listener) } }
+
+    // First, someone can publish only if someone subscribed. This still allows other services to subscribe, and enables
+    // the client to start publishing
+    interaction { Subscribe‖x‖, { move(add, next, StartPublish‖x‖, $Proposer, Proposer) &
+                               store(add, {s}, Players‖x‖, listener) &
+                               move(add, next, Subscribe‖x‖, Evaluator)
+                             }
+                }
+
+
+⟧("     ")
+
+}
+⟫

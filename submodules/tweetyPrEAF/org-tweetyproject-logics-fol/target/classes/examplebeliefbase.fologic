@@ -1,0 +1,14 @@
+Animal = {penguin, eagle, rabbit}
+Plant = {cactus}
+
+type(Flies(Animal))
+type(HasWings(Animal))
+type(Eats(Animal,Animal))
+type(Stings(Plant))
+
+HasWings(penguin)
+forall X: (!Flies(X) || HasWings(X))
+forall X: (forall Y: (!Eats(X,Y) || Eats(Y,X)))
+!Flies(penguin)
+Eats(eagle, rabbit)
+Stings(cactus)
