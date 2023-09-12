@@ -4,6 +4,14 @@ bin/
 .classpath
 .project
 *.class
-
 .idea/
 *.iml
+mongo/
+*__pycache__/
+*.py[cod]
+*$py.class
+haxe/protocol/*
+haxe/python3/*
+haxe/cpp/*
+haxe/cs/*
+>>>>>>> new-branch-on-dgep
