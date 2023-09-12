@@ -14,3 +14,7 @@ broker/haxe/protocol/*
 broker/haxe/python3/*
 broker/haxe/cpp/*
 broker/haxe/cs/*
+.idea/*
+__pycache__/*
+app/__pycache__/*
+
