@@ -1,0 +1,86 @@
+BOGUS {
+    turns{magnitude:single,ordering:strict}
+    roles{speaker,listener}
+    players{min:2, max:undefined}
+    player{id:Proposer,roles{speaker}}
+    player{id:Evaluator,roles{listener}}
+
+    // This is mainly to store the request: it might be renamed
+    store { id: Stack, owner: shared, structure: stack, visibility : public   }
+
+    // Players subscribing to the supplier to privde the information in broadcast
+    store { id: Players, owner: shared, structure: stack, visibility : public  }
+
+    // Whether the player has already read the information from the broadcaster
+    store { id: AlreadyRead, owner: shared, structure: stack, visibility : public  }
+
+    // The reply associated to the player
+    store { id: Reply, owner: shared, structure: stack, visibility : public  }
+
+    rule{id:StartingRule, scope:initial, { move(add, next, Subscribe, Evaluator)  }}
+
+    // The publisher stops all the subscribers to register and to do whatsever operation, then, it starts adding the data
+    interaction { StartPublish , { move(delete, next, Subscribe, $Evaluator, Evaluator) &
+                                   move(add, next, Publish, $Proposer, {p}, Proposer)
+                                 }
+                }
+    // This might have been better expressed with a while-true loop, but anyway, expressing that the publisher shall
+    // repeat in the stack as many arguments as the number of players, while allowing the players only to publish
+    interaction { Publish , {
+                                if { magnitude(Stack, shared, smaller, Players, shared) } then
+                                { store(add, {p}, Stack, listener) &
+                                  move(add, next, Publish, $Proposer, {p}, Proposer) }
+                                // When I reach the maximum capacity, I enforce all the players to re-register if they want to
+                                // subscribe to the next round, and allowing all the players to consume. The language seems
+                                else
+                                { store(empty, {"bogus"}, Players, listener) &
+                                  move(add, next, Consume, $Evaluator, Evaluator)  }
+                            }
+                }
+
+    interaction { Consume , {
+                                if { inspect(!in, {s}, AlreadyRead ) }  then {
+                                store(pop, {p}, Stack, listener) &
+                                store(add, {s}, AlreadyRead, listener) &
+                                move(add, next, PushOutcome, $Evaluator, Evaluator) &
+                                  move(add, next, Consume, $Evaluator, Evaluator)   }
+    } }
+
+    interaction { PushOutcome, {
+        if { inspect(!in, {s}, Players) } then {
+            store(add, {o}, Reply, listener) &
+            store(add, {s}, Players, listener) &
+                                  move(add, next, TestLast, $Evaluator, Evaluator)
+        }
+    }
+    }
+
+    interaction { PopOutcome, {
+        if { size(Reply, Proposer, !empty) } then {
+            store(pop, {o}, Reply, speaker) &
+            store(add, {r}, Players, speaker) &
+                                  move(add, next, PopOutcome, $Evaluator, Evaluator)
+        } else {
+           store(empty, {"bogus"}, Players, listener) & move(add, next, Subscribe, Evaluator)
+        }
+    }
+    }
+
+        interaction { TestLast, {
+        if { magnitude(AlreadyRead, shared, equal, Reply, shared) &
+             magnitude(Players, shared, equal, Reply, shared) } then {
+store(empty, {"bogus"}, AlreadyRead, listener) &
+                                  move(add, next, PopOutcome, $Proposer, Proposer)
+        }
+    }
+    }
+
+    // First, someone can publish only if someone subscribed. This still allows other services to subscribe, and enables
+    // the client to start publishing
+    interaction { Subscribe, { move(add, next, StartPublish, $Proposer, Proposer) &
+                               store(add, {s}, Players, listener) &
+                               move(add, next, Subscribe, Evaluator)
+                             }
+                }
+
+}

@@ -1,0 +1,3 @@
+-cp src
+-main jackbergus.Main
+--library polygonal-ds
