@@ -1,6 +1,0 @@
-## Initialising the game
-curl http://127.0.0.1:5000/new/test_game --upload-file "/home/giacomo/projects/tweetyPrEAF/submodules/dgep-ws/basic.txt"
-## Starting the game with dialogue 0
-curl -X POST -H "Content-Type: application/json" -d "@/home/giacomo/projects/tweetyPrEAF/submodules/dgep-ws/participants.json" http://127.0.0.1:5000/new/test_game/0/service1
-## First interaction
-curl -X POST -H "Content-Type: application/json" -d "@/home/giacomo/projects/tweetyPrEAF/submodules/dgep-ws/move_001.json" http://127.0.0.1:5000/0/interaction/Subscribe
