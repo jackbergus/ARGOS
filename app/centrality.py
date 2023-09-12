@@ -54,19 +54,31 @@ class Centrality:
 
         return graph
 
+    # @staticmethod
+    # def get_graph_url(node_path):
+    #     corpus_loader = CorpusLoader()
+    #     try:
+    #         jsn_string = requests.get(node_path).text
+    #         strng_ind = jsn_string.index('{')
+    #         n_string = jsn_string[strng_ind:]
+    #         dta = json.loads(n_string)
+    #         graph = corpus_loader.parse_json(dta)
+    #     except(IOError):
+    #         print('File was not found:')
+    #         print(node_path)
+    #     return graph
     @staticmethod
-    def get_graph_url(node_path):
+    def parse_json_string(jsn_string):
         corpus_loader = CorpusLoader()
-        try:
-            jsn_string = requests.get(node_path).text
-            strng_ind = jsn_string.index('{')
-            n_string = jsn_string[strng_ind:]
-            dta = json.loads(n_string)
-            graph = corpus_loader.parse_json(dta)
-        except(IOError):
-            print('File was not found:')
-            print(node_path)
-
+        # try:
+        # jsn_string = requests.get(node_path).text
+        strng_ind = jsn_string.index('{')
+        n_string = jsn_string[strng_ind:]
+        dta = json.loads(n_string)
+        graph = corpus_loader.parse_json(dta)
+        # except(IOError):
+        #     print('File was not found:')
+        #     print(node_path)
         return graph
 
     @staticmethod
@@ -165,13 +177,13 @@ class Centrality:
 
         return list_of_nodes, list_of_edges
     @staticmethod
-    def get_top_nodes_combined(node_list):
+    def get_top_nodes_combined(json_string_list):
         all_nodes = []
         centra = Centrality()
         G = nx.DiGraph()
-        for node in node_list:
-            dir_path = 'http://www.aifdb.org/json/' + str(node)
-            g1 = centra.get_graph_url(dir_path)
+        for node in json_string_list:
+            # dir_path = 'http://www.aifdb.org/json/' + str(node)
+            g1 = centra.parse_json_string(node)
 
             G = nx.compose(G,g1)
         G = centra.remove_iso_nodes(G)
@@ -184,22 +196,20 @@ class Centrality:
         #ten_percent = 0.1 * len(i_nodes)
         #top_n = sorted_nodes[:int(ten_percent)]
         all_nodes.extend(sorted_nodes)
-
         if len(all_nodes) > 10:
             ten_percent = 0.05 * len(all_nodes)
         else:
             return all_nodes, l_node_i_node, l_nodes
-
         return all_nodes[:int(round(ten_percent))], l_node_i_node, l_nodes
 
     @staticmethod
-    def get_all_nodes_combined(node_list):
+    def get_all_nodes_combined(json_string_list):
         all_nodes = []
         G = nx.DiGraph()
         centra = Centrality()
-        for node in node_list:
-            dir_path = 'http://www.aifdb.org/json/' + str(node)
-            g1 = centra.get_graph_url(dir_path)
+        for node in json_string_list:
+            # dir_path = 'http://www.aifdb.org/json/' + str(node)
+            g1 = centra.parse_json_string(node)
 
             G = nx.compose(G,g1)
         G = centra.remove_iso_nodes(G)

@@ -78,9 +78,9 @@ class SentenceSimilarity:
         dot = np.dot(v1,v2)
         #print("dot", dot) # getting the dot product
         tow = (c1+c2)/1.8
-        final_similarity = dot/tow
         if tow == 0 or dot == 0:
             return 0
+        final_similarity = dot/tow
         return final_similarity
 
     def sentence_similarity(self,sentence1, sentence2):
