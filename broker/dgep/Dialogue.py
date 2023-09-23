@@ -153,7 +153,6 @@ class Dialogue:
         if self.turntaking == "strict":
             if initiator in self.available_moves:
                 moves = self.available_moves[initiator]
-
                 if moves["next"]:
                     response[initiator] = moves["next"]
                 elif self.backtracking:
@@ -252,6 +251,12 @@ class Dialogue:
             self.stores[name] = Store(store["id"], store["owner"], store["structure"],store["visibility"], store["content"])
 
         return self
+
+    def collectStores(self):
+        g = ""
+        for name in self.stores:
+            g = g+(name+": {"+",".join(self.stores[name].copy())+"} -- ")
+        return g
 
     def save(self):
         ''' Get a dict representation of this dialogue '''

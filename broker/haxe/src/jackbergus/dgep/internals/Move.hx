@@ -17,12 +17,13 @@
  */
 package jackbergus.dgep.internals;
 
-import jackbergus.dgep.Utils.parseJSONData;
+import haxe.macro.Type.Ref;
+import json2object.JsonParser;
 
 using Lambda;
 
 class Move {
-    @:default(new List<String>())
+    @:default(new Map<String,String>())
     public var reply:Map<String,String>;
 
     @:default("")
@@ -49,7 +50,7 @@ class Move {
 /**
  * Current implementation of the protocol only distinguishes between next and future moves.
  */
-class UserMoves {
+/*class UserMoves {
     public var next:List<Move>;
     public var future:List<Move>;
 
@@ -65,14 +66,18 @@ class UserMoves {
     public function availableFuture(pred: String -> Bool) : List<String> {
         return future.filter(function(x) return x.nameMatch(pred)).map(function(x) return x.moveID);
     }
-}
+}*/
+
 
 function parseJSONMoves(parse) {
-    var map:Map<String, UserMoves>=new Map<String, UserMoves>();
+    var map:Map<String, List<Move>>=new Map<String, List<Move>>();
     for (username in Reflect.fields(parse)) {
         var obj = Reflect.field(parse, username);
-        var um = new UserMoves();
-        for (time in Reflect.fields(obj)) {
+        var um = new List<Move>();
+        var parser = new json2object.JsonParser<List<Move>>();
+        um = parser.fromJson(obj);
+        /*var um = new UserMoves();
+        for (time in obj) {
             if (time == "next") {
                 var json = Reflect.field( obj, time);
                 for (i in 0...json.length) {
@@ -86,35 +91,52 @@ function parseJSONMoves(parse) {
                     um.future.add(x);
                   }
             }
-        }
+        }*/
         map.set(username, um);
     }
     return map;
 }
 
 class ResponseAndData {
-    public var parseJsonMoves:Map<String, UserMoves>;
+    public var response:Map<String, List<Move>>;
+    @:default(new Map<String, String>())
     public var data:Map<String,String>;
     
-    public function new(parse) {
+    public function new() {
+        /*switch (parse.value) {
+            case JString(x): return;
+            case JNull: return;
+            case JBool(bool): return;
+            case JNumber(number): return;
+            case JArray(values): return;
+            case JObject(fields): {
+                for (field in fields) {
+                    if (field.name == "data") {
+
+                    } else if (field.name == "response") {
+
+                    }
+                }
+            };
+        }
         data = parseJSONData(Reflect.field(parse, "data"));
-        parseJsonMoves = parseJSONMoves(Reflect.field(parse, "response"));
+        var parser = new json2object.JsonParser<Map<String, List<Move>>>();
+        parseJsonMoves = parser.fromJson(Reflect.field(parse, "response"));*/
+        response = new Map<String, List<Move>>();
+        data = new Map<String, String>();
     }
 
-    public function availableNext(user:String, pred:String->Bool) : List<String> {
+    public function available(user:String, pred:String->Bool) : List<String> {
         var l = new List<String>();
-        if (!parseJsonMoves.exists(user))
+        if (!response.exists(user))
             return l;
         else 
-            return parseJsonMoves.get(user).availableNext(pred);
+            return response
+                        .get(user)
+                        .filter(function(x) return x.nameMatch(pred))
+                        .map(function(x) return x.moveID);
     }
 
-    public function availableFuture(user:String, pred:String->Bool)  : List<String>{
-        var l = new List<String>();
-        if (!parseJsonMoves.exists(user))
-            return l;
-        else 
-            return parseJsonMoves.get(user).availableFuture(pred);
-    }
+
 }
 

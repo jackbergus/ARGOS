@@ -25,6 +25,7 @@ class EvaluatorOrSubscriber {
     var po:String;
     var s:String;
     var tl:String;
+    var pd:String;
     var noargs:Map<String,String>;
     var busy:Bool;
     var fixedAction:String;
@@ -39,7 +40,7 @@ class EvaluatorOrSubscriber {
         cs = "Consume";
         s = "Subscribe";
         p = "Publish";
-        po = "PublishOutcome";
+        po = "PushOutcome";
         tl = "TestLast";
         noargs = new Map<String,String>();
         busy = busyWait;
@@ -61,7 +62,7 @@ class EvaluatorOrSubscriber {
             // Subscribe||x||
             var result:Null<Map<String,String>> = null;
             {
-                result = protocol.testAction(p + fixedAction, selfMap, "bogus", busy, next, fut);
+                result = protocol.testAction(s + fixedAction, selfMap, "bogus", busy);
                 if (result == null) {
                     return Error("Action "+fixedAction+" not available for subscription", CannotSubscribeToAction);
                 }
@@ -69,10 +70,12 @@ class EvaluatorOrSubscriber {
 
             // Consume||x||
             {
-                result = protocol.testAction(cs + fixedAction, selfMap, "bogus", true, next, fut);
+                result = protocol.testAction(cs + fixedAction, selfMap, "bogus", true);
                 if (result == null) {
                     return Error("Action "+fixedAction+" cannot retrieve data from the publisher", CannotRetrievePublisherData);
-                } else if (result.exists("p")) {
+                } 
+                
+                if (!result.exists("p")) {
                     return Error("Cannot read for "+fixedAction+" the data provided by the publisher in parameter 'p'", PublisherMapIsEmpty);
                 } else  {
                     wasforeverServerGetDataCalled = true;
@@ -91,19 +94,21 @@ class EvaluatorOrSubscriber {
         if (!wasforeverServerGetDataCalled)
             return Error("Error: invoking foreverServerSendResponse before satisfactory calling foreverServerGetData", NotAdequateProtocolAdoption);
         
+        // PushOutcome||x||
         wasforeverServerGetDataCalled = false;
         selfMap.set("o", response);        
-        var result = protocol.testAction(po + fixedAction, selfMap, "bogus", false, next, fut);
+        var result = protocol.testAction(po + fixedAction, selfMap, "bogus", false);
         if (result == null) {
             return Error("Action "+fixedAction+" not available for response with subscription", CannotReplyToSubscription);
         }
         selfMap.remove("o");
 
-        result = protocol.testAction(tl+fixedAction, noargs, "bogus", false, next, fut);
+        // TestLast||x||
+        result = protocol.testAction(tl+fixedAction, noargs, "bogus", false);
         if (result == null) {
             return Error("Action "+fixedAction+" not available for testing the response!", CannotTestForResponse);
         }
-
+        
         return Good(true);
     }
     
@@ -137,21 +142,27 @@ abstract class EvaluatorOrSubscriberServer {
      */
      @:keep
     public function server():ErrorMonad<Bool, EvaluatrOrSubscriberCases> {
-        while (true) {
+        var outcome:Bool = true;
+        while (outcome) {
+            // Expressing the request from the server as a string
             var data = eos.foreverServerGetData();
             var payload = "";
+            trace("Payload: "+payload);
             switch (data) {
                 case Error(m,c): return Error(m,c);
                 case Good(d): payload = d;
             }
+            // Computing the response (always as a string) given the payload from ARGA
             var out = processInstruction(payload);
+            trace("Payload response: "+out);
+            // Sending the response to ARGA
             var response = eos.foreverServerSendResponse(out);
             switch (response) {
                 case Error(_,_): return response;
-                case Good(_): break;
+                case Good(x): outcome = x;
             }
         }
-        return Good(true);
+        return Good(outcome);
     }
 
 }

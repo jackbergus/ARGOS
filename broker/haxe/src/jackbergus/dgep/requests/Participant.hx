@@ -51,12 +51,12 @@ class RawParticipantObjectToJSON  {
  @:keep
 class Participant {
     var participants:Map<String,String>;
-    //var parser:json2object.JsonWriter<RawParticipantObjectToJSON>;
+    var parser:json2object.JsonWriter<RawParticipantObjectToJSON>;
 
     @:keep
     public function new() {
         participants = new Map<String,String>();
-        //parser = new json2object.JsonWriter<RawParticipantObjectToJSON>();
+        parser = new json2object.JsonWriter<RawParticipantObjectToJSON>();
     }
 
     /**
@@ -91,7 +91,7 @@ class Participant {
         for (user => age in participants) {
             obj.participants.add(new RawParticipantToJSON(user,age));
         }
-        return Json.stringify(obj);
-        //return parser.write(obj);
+        //return Json.stringify(obj);
+        return parser.write(obj);
     }
 }

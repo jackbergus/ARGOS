@@ -17,11 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .Requirement import Requirement
 
-class StoreComparisonRequirement(Requirement):
-    def __init__(requirement, store1, user1, comparison, store2, user2):
-        requirement.type = "magnitude"
-        requirement.store1 = store1
-        requirement.user1 = user1
-        requirement.comparison = comparison
-        requirement.store2 = store2
-        requirement.user2 = user2
+class SizeRequirement(Requirement):
+    def __init__(requirement, containerName, legalMovesQuery, isNumber, playerID, number, conditionCheck):
+        requirement.type = "size"
+        requirement.conditionCheck = conditionCheck
+        requirement.number = number
+        requirement.playerID = playerID
+        requirement.isNumber = isNumber
+        requirement.legalMovesQuery = legalMovesQuery
+        requirement.containerName = containerName

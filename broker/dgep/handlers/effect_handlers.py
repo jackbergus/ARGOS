@@ -215,31 +215,32 @@ def handle_store_effect(dialogue, effect, data=None):
         for c in effect.storecontent:
             if islower(c[0]):
                 var = c[0]
-
-                for key, value in data["reply"].items():
-                    if key == var:
-                        if action == "add":
-                            dialogue.stores[storeID].append(value)
-                        elif action == "remove" and dialogue.stores[storeID].contains(value):
-                            dialogue.stores[storeID].remove(value)
-                        elif effect.action == "gettop":
-                            if "reply" not in data:
-                                data["reply"] = {}
-                            data["reply"][var] = dialogue.stores[storeID].get(-1)
-                        elif effect.action == "getbot":
-                            if "reply" not in data:
-                                data["reply"] = {}
-                            data["reply"][var] = dialogue.stores[storeID].get(0)
+                if action == "pop":
+                    data["reply"][var] = dialogue.stores[storeID].pop()
+                elif action == "gettop":
+                    if "reply" not in data:
+                        data["reply"] = {}
+                    data["reply"][var] = dialogue.stores[storeID].get(-1)
+                elif action == "getbot":
+                    if "reply" not in data:
+                        data["reply"] = {}
+                    data["reply"][var] = dialogue.stores[storeID].get(0)
+                elif action=="copy":
+                    if storeID in dialogue.stores:
+                        data["reply"][var] = "["+",".join(dialogue.stores[storeID].copy())+"]"
+                    else:
+                        data["reply"][var] = "[]"
+                else:
+                    if var in data["reply"]:
+                            value = data["reply"][var]
+                            if action == "add":
+                                dialogue.stores[storeID].append(value)
+                            elif action == "remove" and dialogue.stores[storeID].contains(value):
+                                dialogue.stores[storeID].remove(value)
             else:
-                if action == "add":
-                    c = c.replace('"', '')  # strip off quotes
-                    dialogue.stores[storeID].append(c)
-                elif action == "remove" and c in dialogue.stores[storeID].content:
-                    c = c.replace('"', '')  # strip off quotes
-                    dialogue.stores[storeID].remove(c)
-                elif effect.action == "pop":
-                    data["reply"][storeID] = dialogue.stores[storeID].pop()
-                elif effect.action == "gettop":
+                if action == "pop":
+                    data["reply"][var] = dialogue.stores[storeID].pop()
+                elif action == "gettop":
                     pos = -1
                     c = c.replace('"', '')  # strip off quotes
                     if "@" in c:
@@ -249,7 +250,7 @@ def handle_store_effect(dialogue, effect, data=None):
                     if "reply" not in data:
                         data["reply"] = {}
                     data["reply"][c] = dialogue.stores[storeID].get(pos)
-                elif effect.action == "getbot":
+                elif action == "getbot":
                     pos = 0
                     c = c.replace('"', '')  # strip off quotes
                     if "@" in c:
@@ -259,6 +260,18 @@ def handle_store_effect(dialogue, effect, data=None):
                     if "reply" not in data:
                         data["reply"] = {}
                     data["reply"][c] = dialogue.stores[storeID].get(pos)
+                elif action=="copy":
+                    if storeID in dialogue.stores:
+                        data["reply"][c] = "["+",".join(dialogue.stores[storeID].copy())+"]"
+                    else:
+                        data["reply"][c] = "[]"
+                else:
+                    if action == "add":
+                        c = c.replace('"', '')  # strip off quotes
+                        dialogue.stores[storeID].append(c)
+                    elif action == "remove" and c in dialogue.stores[storeID].content:
+                        c = c.replace('"', '')  # strip off quotes
+                        dialogue.stores[storeID].remove(c)
     return data
 
 @effect_handler("statusupdate")

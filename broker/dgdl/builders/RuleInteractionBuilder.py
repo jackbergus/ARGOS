@@ -22,6 +22,9 @@ from .BaseDGDLBuilder import BaseDGDLBuilder
 from dgdl.elements import Conditional
 from dgdl.elements.effects import *
 from dgdl.elements.requirements import *
+from ..elements.requirements.SizeRequirement import SizeRequirement
+from ..elements.requirements.StoreComparisonRequirement import StoreComparisonRequirement
+
 
 class RuleInteractionBuilder(BaseDGDLBuilder):
 
@@ -72,10 +75,30 @@ class RuleInteractionBuilder(BaseDGDLBuilder):
         role = ctx.role().getText()
         self.current_conditional.add_requirement(InRoleRequirement(False, playerID, role))
 
+    def enterMagnitude(self, ctx: dgdlParser.MagnitudeContext):
+        cont = ctx.container()
+        containerName:str=None
+        legalMovesQuery:bool=False
+        isNumber:bool=False
+        playerID = ctx.playerID().getText()
+        number=-1
+        conditionCheck:str=None
+        if cont.LEGALMOVES() is not None:
+            legalMovesQuery=True
+        else:
+            containerName = cont.storeName().getText()
+        cont = ctx.containersize()
+        if cont.Number() is not None:
+            isNumber = True
+            number=int(cont.Number())
+        else:
+            conditionCheck= cont.getText()
+        self.current_conditional.add_requirement(SizeRequirement(containerName, legalMovesQuery, isNumber, playerID, number, conditionCheck))
+
     def enterStoreComparison(self, ctx: dgdlParser.StoreComparisonContext):
         c1, c2 = ctx.store1().getText(), ctx.store2().getText()
         p1, p2 = ctx.user1().getText(), ctx.user2().getText()
-        self.current_conditional.add_requirement(tuple([c1,p1,ctx.comparison().getText(),c2,p2]))
+        self.current_conditional.add_requirement(StoreComparisonRequirement(c1,p1,ctx.comparison().getText(),c2,p2))
 
     def enterStoreInspection(self, ctx):
         storepos = ctx.storepos().getText()
@@ -133,6 +156,8 @@ class RuleInteractionBuilder(BaseDGDLBuilder):
             user = user.getText()
 
         self.current_effect_target(MoveEffect(action, time, id, addressee, content, user))
+
+
 
     def enterStoreOp(self, ctx):
         action = ctx.storeaction().getText()

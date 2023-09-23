@@ -110,4 +110,4 @@ if __name__ == "__main__":
     representation
     """
     g = Generaliser()
-    print(g.readFile(os.argv[1], False))
+    print(g.readFile(os.sys.argv[1], False))

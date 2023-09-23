@@ -24,15 +24,16 @@ import jackbergus.dgep.messages.DialogueMessage;
 import haxe.Json;
 import jackbergus.dgep.internals.MongoDB;
 import jackbergus.dgep.messages.ProtocolList.ProtocolList;
+import json2object.JsonParser;
 
 @:keep
 class ConnectionRaw {
     var url:RestfulHTTPConnections;
-    //var protocolListParser:json2object.JsonParser<Map<String,ProtocolList>>;
+    var protocolListParser:json2object.JsonParser<Map<String,ProtocolList>>;
     @:keep
     public function new(addr:String, port:Int) {
         url = new RestfulHTTPConnections(addr,port);
-       // protocolListParser = new json2object.JsonParser<Map<String,ProtocolList>>();
+       protocolListParser = new json2object.JsonParser<Map<String,ProtocolList>>();
     }
     @:keep
     public function loadDB(json:String) {
@@ -52,16 +53,18 @@ class ConnectionRaw {
         if (initiator.length>0)
             str = str+"/"+initiator;
         var x = url.postFile(str, data);
-        var parse = Json.parse(x);
-        var msg:DialogueMessage = new DialogueMessage(parse);
+        //var js = hxjsonast.Parser.parse(x, "filename");
+        var msgParser = new json2object.JsonParser<DialogueMessage>();
+        var msg:DialogueMessage = msgParser.fromJson(x);
         return msg;
     }
     @:keep
     public function interaction(dialogue:String, interactionId:String, json:String) {
         var str = "/"+dialogue+"/interaction/"+interactionId;
         var x = url.postFile(str, json);
-        var parse = Json.parse(x);
-        return new ResponseAndData(parse);
+        var parser = new json2object.JsonParser<ResponseAndData>();
+        //var parse = Json.parse(x);
+        return parser.fromJson(x);
     }
     @:keep
     public function dialogueMoves(dialogue:String, initiator:String="") {
@@ -69,8 +72,9 @@ class ConnectionRaw {
         if (initiator.length>0)
             str = str+initiator;
         var x = url.get(str);
-        var parse = Json.parse(x);
-        return new ResponseAndData(parse);
+        var parser = new json2object.JsonParser<ResponseAndData>();
+        //var parse = Json.parse(x);
+        return parser.fromJson(x);
     }
 
     @:keep
@@ -81,14 +85,15 @@ class ConnectionRaw {
     @:keep
     public function list() {
         var x = url.putFile("/list/");
-        var obj = Json.parse(x);// protocolListParser.fromJson(x);
+        var obj = protocolListParser.fromJson(x);
         return obj;
     }
 
     @:keep
     public function newProtocol(name:String, data:String) {
         var x = url.putFile("/new/"+name, data);
-        var obj:ProtocolMessage = Json.parse(x);
+        var parser = new json2object.JsonParser<ProtocolMessage>();
+        var obj:ProtocolMessage = parser.fromJson(x);
         return obj;
     }
 

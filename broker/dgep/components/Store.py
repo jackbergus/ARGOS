@@ -30,6 +30,8 @@ class Store(Component):
         self.content = content
         self.globalLock = rwlock.RWLockFairD()
 
+
+
     def copyWithoutLock(self):
         return {"owner": self.owner, "structure":self.structure, "visibility":self.visibility, "content":self.content}
 
@@ -42,12 +44,20 @@ class Store(Component):
                 val = self.content[pos]
         return val
 
+    def copy(self):
+        ls = list()
+        with self.globalLock.gen_rlock():
+            for x in self.content:
+                ls.append(x)
+        return ls
+
     def pop(self):
         result = None
         with self.globalLock.gen_wlock():
             if len(self.content)>0:
                 result = self.content.pop()
         return result
+
     def remove(self, content):
         with self.globalLock.gen_wlock():
             self.content.remove(content)

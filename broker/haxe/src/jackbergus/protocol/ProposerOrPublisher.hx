@@ -31,10 +31,8 @@ class ProposerOrPublisher {
     var busy:Bool;
 
     @:keep
-    public function new(c:DialogueLogic, agentName:String="ARGA", sleep:Float=0.5, inFuture:Bool=false, inNext:Bool=true, busyWait:Bool=true) {
+    public function new(c:DialogueLogic, agentName:String="ARGA", sleep:Float=0.5,busyWait:Bool=true) {
         protocol = new ProtocolService(c, agentName, sleep);
-        fut = inFuture;
-        next = inNext;
         p = "Publish";
         sp = "StartPublish";
         po = "PopOutcome";
@@ -50,7 +48,7 @@ class ProposerOrPublisher {
      */
      @:keep
     public function publishableActions(action:String = ""):List<String> {
-        return protocol.doableActions(sp, next, fut,  action);
+        return protocol.doableActions(sp, action);
     }
 
     /**
@@ -72,7 +70,7 @@ class ProposerOrPublisher {
         // StartPublishing||x||
         var result:Null<Map<String,String>> = null;
         {
-            result = protocol.testAction(sp + action, noargs, "bogus", busy, next, fut);
+            result = protocol.testAction(sp + action, noargs, "bogus", busy);
             if (result == null) {
                 return Error("Action "+action+" not available at testAction", ActionNotReady);
             }
@@ -83,23 +81,32 @@ class ProposerOrPublisher {
         var countServices = 0;
         var publishableData:Map<String,String> = new Map<String,String>();
         publishableData.set("d", data);
+        var servicesToCount = "[]";
         do {
             // Performing a publish operation until there are no more agents to be notified, in a non-blocking way
-            result = protocol.testAction(p + action, publishableData, "bogus", false, next, fut);
-            countServices++;
+            result = protocol.testAction(p + action, publishableData, "bogus", false);
+            if (result != null) {
+                if (result.exists("l")) {
+                    servicesToCount = result.get("l");
+                }
+            }
         } while (result != null);
+        var servicesToCountList:Array<String> = servicesToCount.substring(1, servicesToCount.length-1).split(",");
+        countServices = servicesToCountList.length;
 
         
         // PopOutcome||x||
-        if (!protocol.isActionAvailable(po+ action, busy,next, fut)) {
+        if (!protocol.isActionAvailable(po+ action, busy)) {
             return Error("Cannot pop the outcome of "+action+" given the busyness: "+(busy? "true":"false"), CannotPopValues);
         }
         var m:Map<String,String>= new Map<String,String>();
         do {
-            result = protocol.testAction(po+ action, noargs, "bogus", false, next, fut);
+            result = protocol.testAction(po+ action, noargs, "bogus", false);
             countServices--;
             if ((result == null) && (countServices> 0))
                 return Error("Expecting that the PopOutcome would return a value, but null was returned instead", UnexpectedNullArgumentFromPop);
+            if (result == null)
+                break;
             if (!result.exists("o"))
                 return Error("Expecting a missing response argument!", MissingResponseArgument);
             var o = result.get("o");
@@ -109,10 +116,18 @@ class ProposerOrPublisher {
             if (m.exists(s))
                 return Error("Obtained a duplicate service name for: "+s, DuplicateServiceName);
             m.set(s, o);
-        } while (result != null);
+        } while ((result != null) && (countServices> 0));
 
-
-        return Good(m);
+        if (countServices==0) {
+            // Last call: clearing everything, and allowing to subscribe again
+            result = protocol.testAction(po+ action, noargs, "bogus", false);
+            if (result == null)
+                trace("Null last result");
+            else 
+                trace("last result not null");
+            return Good(m);
+        } else 
+            return Error("Something went wrong: not the expected number of agents was provided", UnexpectedNullArgumentFromPop);
     }
 
 

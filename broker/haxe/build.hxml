@@ -1,3 +1,4 @@
 -cp src
 -main jackbergus.Main
 --library polygonal-ds
+--library json2object

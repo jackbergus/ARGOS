@@ -49,11 +49,11 @@ function float_to_number(n:Float):String {
     return begin+after_dot;
 }
 
-function parseJSONData(parse) {
+/*function parseJSONData(parse) {
     var map:Map<String,String>=new Map<String,String>();
     for (key in Reflect.fields(parse)) {
         var obj:String = Reflect.field(parse, key);
         map.set(key, obj);
     }
     return map;
-}
+}*/

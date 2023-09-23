@@ -18,7 +18,7 @@
 package jackbergus.dgep.connections;
 
 import jackbergus.dgep.requests.Participant.Participant;
-import jackbergus.dgep.internals.Move.UserMoves;
+import jackbergus.dgep.internals.Move.Move;
 import haxe.Json;
 import jackbergus.dgep.internals.MongoDB;
 import jackbergus.dgep.messages.ProtocolMessage;
@@ -34,10 +34,10 @@ class DialogueLogic {
     //var iWriter:json2object.JsonWriter<Interaction>; // Creating a writer for Cls class
 
     @:keep
-    public function getMovesFromMessage() {
-        var r:Null<Map<String, UserMoves>>=null;
+    public function getMovesFromMessage():Map<String, List<Move>> {
+        var r:Null<Map<String, List<Move>>>=null;
         if (msg != null) {
-            r = msg.moves.parseJsonMoves;
+            r = msg.moves.response;
         }
         return r;
     }
@@ -60,7 +60,10 @@ class DialogueLogic {
 
     @:keep
     public function moves(initiator:String="") {
-        return x.dialogueMoves(dialogueName, initiator);
+        var z = x.dialogueMoves(dialogueName, initiator);
+        if (z == null)
+            trace("Communication ERROR!");
+        return z;
     }
 }
 

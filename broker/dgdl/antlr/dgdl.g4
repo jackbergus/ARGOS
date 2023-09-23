@@ -138,7 +138,7 @@ moveaction    : ('add' | 'delete');
 movetime      : ('next' | 'future');
 
 storeOp       : 'store' '(' storeaction (',' content)* ',' DOLLAR? storeName ',' user ')' ;
-storeaction   : ('add' | 'remove' | 'empty' | 'gettop' | 'getbot' | 'pop'); // Extension to the language!
+storeaction   : ('add' | 'remove' | 'empty' | 'gettop' | 'getbot' | 'copy' | 'pop'); // Extension to the language!
 
 statusUpdate  : 'status' '(' status ',' sysgame ')' ;
 status        : ('active' | 'inactive' | 'complete' | 'incomplete' | 'initiate' | 'terminate');

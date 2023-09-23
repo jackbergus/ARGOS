@@ -58,7 +58,7 @@ def new(protocol,dialogueId,initiator=None):
     with dialogueLock.gen_wlock():
         status, d = load_dialogue(dialogueId)
         if status == "ok":
-            return {"dialogueID": "alreadyExisting", "moves": d.get_available_moves()}, 409
+            return {"dialogueID": "alreadyExisting", "moves": d.get_available_moves(initiator=initiator)}, 201
         data = request.stream.read().decode("utf-8")
         try:
             data = json.loads(data)
@@ -72,8 +72,7 @@ def new(protocol,dialogueId,initiator=None):
                 response, result = save_dialogue(d, dialogueId)
                 if response == "error" and result == "owner":
                     return "ERROR 401", 401
-
-                return {"dialogueID": result, "moves": d.get_available_moves()}, 200
+                return {"dialogueID": result, "moves": d.get_available_moves(initiator=initiator)}, 200
             else:
                 return response, 500
         else:
@@ -92,7 +91,9 @@ def moves(dialogueID,initiator=None):
     with dialogueLock.gen_wlock():
         status, d = load_dialogue(dialogueID)
         if status == "ok":
-            return d.get_available_moves(initiator), 200
+            talk_talk = d.get_available_moves(initiator)
+            print("Checking moves from: " + dialogueID + "/moves/" + initiator+" ["+",".join(map(lambda x : x["moveID"], talk_talk["response"][initiator]))+"]")
+            return talk_talk, 200
         elif status == "error":
             if d == "owner":
                 return "ERROR 401", 401
@@ -104,9 +105,12 @@ def interaction(dialogueID, interactionID):
     with dialogueLock.gen_wlock():
         status, d = load_dialogue(dialogueID)
         if status == "ok":
+            if interactionID=="PublishinteractionA":
+                print("DEBUG")
             data = json.loads(request.stream.read().decode("utf-8"))
             result = d.perform_interaction(interactionID, **data)
             save_dialogue(d, dialogueID)
+            print("/"+dialogueID+"/interaction/"+interactionID+" from "+data["speaker"]+": ["+",".join(map(lambda x : x["moveID"], result["response"][data["speaker"]]))+"] ## "+d.collectStores())
             return result, 200
         elif status == "error":
             if d == "owner":
@@ -201,7 +205,7 @@ def new_protocol(name):
                 name = mongo.addProtocol(content.decode("utf-8"),name)
                 return {"message":"saved","protocol":name}, 201
             else:
-                return {"message":"alreadyExisting","protocol":name}, 409
+                return {"message":"alreadyExisting","protocol":name}, 201
 
 
 if __name__ == '__main__':

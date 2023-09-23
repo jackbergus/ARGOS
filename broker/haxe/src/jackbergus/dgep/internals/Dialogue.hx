@@ -39,7 +39,7 @@ class Dialogue {
 
     public var status:String;
 
-    public var available_moves:Map<String,UserMoves>;
+    public var available_moves:Map<String,List<Move>>;
 
     public var current_speakers:List<String>;
 
@@ -52,7 +52,7 @@ class Dialogue {
     @:keep
     public function new() {
         players = new List<Player>();
-        available_moves = new Map<String, UserMoves>();
+        available_moves = new Map<String, List<Move>>();
         dialogue_history = new Map<String, List<Interaction>>();
     }
 }

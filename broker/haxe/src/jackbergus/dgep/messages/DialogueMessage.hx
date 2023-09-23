@@ -27,8 +27,31 @@ class DialogueMessage {
     public var dialogueID:String;
 
     @:keep
-    public function new(parse) {
-        moves = new ResponseAndData(Reflect.field(parse, "moves"));
-        dialogueID = Reflect.field(parse, "dialogueID");
+    public function new(/*js:hxjsonast.Json*/) {
+        moves = new ResponseAndData();
+        dialogueID = "";
+        /*switch (js.value){
+            case JNull: return;
+            case JString(string): return;
+            case JBool(bool): return;
+            case JNumber(number): return;
+            case JArray(values): return;
+            case JObject(fields):{
+                for (field in fields) {
+                    if (field.name == "dialogueID") {
+                        switch (field.value.value) {
+                            case JString(x): dialogueID = x;
+                            case JNull: return;
+                            case JBool(bool): return;
+                            case JNumber(number): return;
+                            case JArray(values): return;
+                            case JObject(fields): return;
+                        }
+                    } else if (field.name == "moves") {
+                        moves = new ResponseAndData(field.value.value);
+                    }
+                }
+            }
+        }*/
     }
 }

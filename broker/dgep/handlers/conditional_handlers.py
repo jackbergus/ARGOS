@@ -15,7 +15,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from dgdl.elements.requirements import EventRequirement, InRoleRequirement, InspectRequirement
-
+from dgdl.elements.requirements.SizeRequirement import SizeRequirement
+from dgdl.elements.requirements.StoreComparisonRequirement import StoreComparisonRequirement
 
 ''' Module for handling conditionals
 
@@ -138,7 +139,7 @@ def handle_inspect_requirement(dialogue, requirement:InspectRequirement, data):
     result = True
 
     for c in content:
-        if c[0] == '"':
+        if c[0] == '\'':
             c = c.replace('"','') #strip quotes
             if not store.contains(c, negated):
                 result = False
@@ -156,20 +157,51 @@ def handle_inspect_requirement(dialogue, requirement:InspectRequirement, data):
 
 
 @requirement_handler("magnitude")
-def handle_magnitude_requirement(dialogue, requirement, data):
-    store1, user1, comparison, store2, user2 = requirement
-    len1 = len(dialogue.stores[store1]) if store1 in dialogue.stores else 0
-    len2 = len(dialogue.stores[store2]) if store2 in dialogue.stores else 0
-    if requirement == "greater":
+def handle_magnitude_requirement(dialogue, requirement:StoreComparisonRequirement, data):
+    store1, user1, comparison, store2, user2 = requirement.store1, requirement.user1,  requirement.comparison,requirement.store2, requirement.user2
+    len1 = len(dialogue.stores[store1].content) if store1 in dialogue.stores else 0
+    len2 = len(dialogue.stores[store2].content) if store2 in dialogue.stores else 0
+    if requirement.comparison == "greater":
         return len1>len2
-    elif requirement=="smaller":
+    elif  requirement.comparison=="smaller":
         return len1<len2
-    elif requirement=="equal":
+    elif  requirement.comparison=="equal":
         return len1==len2
-    elif requirement=="!equal":
+    elif  requirement.comparison=="!equal":
         return len1!=len2
     else:
         return False
+
+@requirement_handler("size")
+def handle_size_requirement(dialogue, requirement:SizeRequirement, data):
+    user = dialogue.current_speaker
+    if (user is None):
+        user = dialogue.players[data["target"]].player
+
+    N = 0
+    if requirement.legalMovesQuery:
+        ls = list()
+        d = dialogue.get_available_moves(initiator=dialogue.current_speaker, data=data["reply"])["response"]
+        for initiator in d:
+            for move in d[initiator]:
+                ls.append(move.moveID)
+        N = len((set(ls))) #unique set of actions
+    else:
+        N = len(dialogue.stores[requirement.containerName].content) if requirement.containerName in dialogue.stores else 0
+
+    if requirement.isNumber:
+        return N == requirement.number
+    else:
+        if requirement.conditionCheck == "empty":
+            return N == 0
+        elif requirement.conditionCheck == "!empty":
+            return N != 0
+        else:
+            return False
+
+
+
+
 
 # @requirement_handler("uriTest")
 # def handle_uri_test_requirement(dialogue, requirement, data):

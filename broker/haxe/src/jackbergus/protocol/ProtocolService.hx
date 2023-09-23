@@ -49,22 +49,14 @@ class ProtocolService {
      * @param inFuture      Whether the action shall appear among the future values
      */
      @:keep
-    public function canIDoActionQM(action:String, inNext:Bool, inFuture:Bool) {
+    public function canIDoActionQM(action:String) {
         var m = connection.moves(self);
-        if (!m.parseJsonMoves.exists(self))
+        if (!m.response.exists(self))
             return false;
-        var myActions = m.parseJsonMoves.get(self);
-        if (inNext) {
-            for (x in myActions.next) {
-                if (x.moveID == action) 
-                    return true;
-            }
-        }
-        if (inFuture) {
-            for (x in myActions.future) {
-                if (x.moveID == action)
-                    return true;
-            }
+        var myActions = m.response.get(self);
+        for (x in myActions) {
+            if (x.moveID == action) 
+                return true;
         }
         return false;
     }
@@ -76,17 +68,13 @@ class ProtocolService {
      * @param inFuture      To appear in Future
      * @param pred          Testing predicate over the name of the action
      */
-    public function availableActions(inNext:Bool, inFuture:Bool, pred:String->Bool) {
+    public function availableActions( pred:String->Bool) {
         var l = new List<String>();
         var m = connection.moves(self);
-        if (!m.parseJsonMoves.exists(self))
+        if (!m.response.exists(self))
             return l;
-        if (inNext)
-            for (x in m.availableNext(self, pred))
-                l.add(x);
-        if (inFuture)
-            for (x in m.availableFuture(self, pred))
-                l.add(x);
+        for (x in m.available(self, pred))
+            l.add(x);
         return l;
     } 
 
@@ -98,13 +86,19 @@ class ProtocolService {
      * @param inFuture      To be tested in the future actions
      * @return Bool
      */
-    public function isActionAvailable(action:String, busyWait:Bool, inNext:Bool, inFuture:Bool):Bool {
+    public function isActionAvailable(action:String, busyWait:Bool):Bool {
         if (busyWait)  {
-            while (!canIDoActionQM(action, inNext, inFuture))
+            while (!canIDoActionQM(action))
                 Sys.sleep(this.s);
+            trace("Can perform action after busy waiting: "+action);
             return true;
         } else {
-            return (canIDoActionQM(action, inNext, inFuture));
+            var outcome:Bool = (canIDoActionQM(action));
+            if (outcome)
+                trace("Can immediately perform action: "+action);
+            else 
+                trace("Cannot immediately perform action: "+action);
+            return outcome;
         }
     }
 
@@ -123,9 +117,7 @@ class ProtocolService {
     public function testAction(action:String, 
                         args:Map<String,String>,
                         target:String, 
-                        busyWait:Bool, 
-                        inNext:Bool, 
-                        inFuture:Bool
+                        busyWait:Bool
                         ) {
         var r:Null<Map<String,String>> = null;                    
         /*if (busyWait)  {
@@ -136,7 +128,7 @@ class ProtocolService {
                 return r;
         }*/
 
-        if (!isActionAvailable(action,busyWait,inNext,inFuture)) 
+        if (!isActionAvailable(action, busyWait)) 
             return r;
         var i = new Interaction(action, self, target);
         for (k => v in args)
@@ -151,12 +143,12 @@ class ProtocolService {
     }
 
 
-    public function doableActions(actionKind:String,  inNext:Bool, inFuture:Bool, action:String = ""):List<String> {
+    public function doableActions(actionKind:String, action:String = ""):List<String> {
         if (action.length == 0) {
-            return availableActions(inNext, inFuture, function(x) return StringTools.startsWith(x, actionKind))
+            return availableActions(function(x) return StringTools.startsWith(x, actionKind))
                     .map(function(x) return x.substr(actionKind.length));
         } else {
-            return availableActions(inNext, inFuture, function(x) return x == actionKind+action)
+            return availableActions(function(x) return x == actionKind+action)
                     .map(function(x) return x.substr(actionKind.length));
         }
 
