@@ -74,7 +74,7 @@ BOGUS {
     interaction { PushOutcome‖x‖, {    if { inspect(in, {s}, Players‖x‖) &
                                             inspect(in, {s}, AlreadyRead‖x‖ ) } then {
 
-                                              store(add, {o}, Reply‖x‖ listener) &
+                                              store(add, {o}, Reply‖x‖, listener) &
                                               store(add, {s}, ReplyAuthor‖x‖, listener) &
                                               // Action that will be done effectively only by the last subscriber
                                               move(add, next, TestLast‖x‖, $Evaluator, Evaluator) &

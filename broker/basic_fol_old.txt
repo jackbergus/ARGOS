@@ -1,4 +1,4 @@
-∀x∈{o}.
+∀x∈{interactionA,interactionB}.
 
 game ≝⟪
 
@@ -8,47 +8,111 @@ BOGUS {
     players{min:2, max:undefined}
     player{id:Proposer,roles{speaker}}
     player{id:Evaluator,roles{listener}}
-    ⟦ store { id: Stack‖x‖, owner: shared, structure: stack, visibility : public   }
+
+    ⟦ // This is mainly to store the request: it might be renamed
+    store { id: Stack‖x‖, owner: shared, structure: stack, visibility : public   }
+
+    // Players subscribing to the supplier to privde the information in broadcast
     store { id: Players‖x‖, owner: shared, structure: stack, visibility : public  }
+
+    // Whether the player has already read the information from the broadcaster
+    store { id: AlreadyRead‖x‖, owner: shared, structure: stack, visibility : public  }
+
+    // The reply associated to the player
+    store { id: Reply‖x‖, owner: shared, structure: stack, visibility : public  }
+
+    // The reply associated to the player
+    store { id: ReplyAuthor‖x‖, owner: shared, structure: stack, visibility : public  }
     ⟧(" ")
 
     rule{id:StartingRule, scope:initial, { ⟦ move(add, next, Subscribe‖x‖, Evaluator)
     ⟧(" & ") }}
 
 ⟦
-    ////// Section: ‖x‖
-
-    // The publisher stops all the subscribers to register and to do whatsever operation, then, it starts adding the data
-    interaction { StartPublish‖x‖ , { move(delete, next, Subscribe‖x‖, $Evaluator, Evaluator) &
-                                   move(add, next, Publish‖x‖, $Proposer, {p}, Proposer)
-                                 }
-                }
-    // This might have been better expressed with a while-true loop, but anyway, expressing that the publisher shall
-    // repeat in the stack as many arguments as the number of players, while allowing the players only to publish
-    interaction { Publish‖x‖ , {
-                                if { magnitude(Stack‖x‖, shared, smaller, Players‖x‖, shared) } then
-                                { store(add, {p}, Stack‖x‖, listener) &
-                                  move(add, next, Publish‖x‖, $Proposer, {p}, Proposer) }
-                                // When I reach the maximum capacity, I enforce all the players to re-register if they want to
-                                // subscribe to the next round, and allowing all the players to consume. The language seems
-                                else
-                                { store(empty, {"bogus"}, Players‖x‖, listener) &
-                                  move(add, next, Consume‖x‖, $Evaluator, Evaluator)  }
-                            }
-                }
-
-    //interaction { Consume‖x‖ , { store(get, {p}, Stack‖x‖, listener) } }
-
     // First, someone can publish only if someone subscribed. This still allows other services to subscribe, and enables
-    // the client to start publishing
-    interaction { Subscribe‖x‖, { move(add, next, StartPublish‖x‖, $Proposer, Proposer) &
-                               store(add, {s}, Players‖x‖, listener) &
-                               move(add, next, Subscribe‖x‖, Evaluator)
-                             }
+    // the client to start publishing. Still, I can subscribe only if I haven’t done so yet.
+    interaction { Subscribe‖x‖, { if { inspect(!in, {s}, Players‖x‖ ) }  then {
+                                         store(add, {s}, Players‖x‖, listener) &
+                                         move(add, next, StartPublish‖x‖, $Proposer, Proposer) &
+                                         move(add, next, Subscribe‖x‖, Evaluator)
+                                     }
+                                }
                 }
+
+    // The publisher stops all the subscribers to register and to do whatsoever operation, then, it starts adding the data
+    interaction { StartPublish‖x‖, { move(delete, next, Subscribe‖x‖, $Evaluator, Evaluator) &
+                                     move(add, next, Publish‖x‖, $Proposer, {p}, Proposer)
+                                   }
+                }
+
+    // Now, the publisher starts sending the data to the subscribers, that are going to reply to the data being passed with some
+    //  data replyThis might have been better expressed with a while-true loop, but anyway, expressing that the publisher shall
+    // repeat in the stack as many arguments as the number of players, while allowing the players only to publish
+    interaction { Publish‖x‖ , {  if { magnitude(Stack‖x‖, shared, smaller, Players‖x‖, shared) } then {
+                                          store(add, {d}, Stack‖x‖, listener) &
+                                          move(add, next, Publish‖x‖, $Proposer, {d}, Proposer)
+                                     } else {
+                                          move(add, next, Consume‖x‖, $Evaluator, Evaluator)
+                                     }
+                               }
+                }
+
+
+
+    // I can consume only if I was previously subscribed to this and if I haven’t read yet
+    interaction { Consume‖x‖ , { if { inspect(!in, {s}, AlreadyRead‖x‖ )  &
+                                      inspect(!in, {s}, Players‖x‖ ) }  then {
+
+                                          store(pop, {p}, Stack‖x‖, listener) & // reading the data for me on the stack
+                                          store(add, {s}, AlreadyRead‖x‖, listener) & // Setting myself as already read the data
+                                          move(add, next, PushOutcome‖x‖, $Evaluator, Evaluator) &
+                                          move(add, next, Consume‖x‖, $Evaluator, Evaluator)
+                                     }
+                               }
+                }
+
+    interaction { PushOutcome‖x‖, {    if { inspect(in, {s}, Players‖x‖) &
+                                            inspect(in, {s}, AlreadyRead‖x‖ ) } then {
+
+                                              store(add, {o}, Reply‖x‖, listener) &
+                                              store(add, {s}, ReplyAuthor‖x‖, listener) &
+                                              // Action that will be done effectively only by the last subscriber
+                                              move(add, next, TestLast‖x‖, $Evaluator, Evaluator) &
+                                              move(add, next, PushOutcome‖x‖, $Evaluator, Evaluator)
+                                          }
+                                  }
+                }
+
+        interaction { TestLast‖x‖, { if { magnitude(Players‖x‖, shared, equal, ReplyAuthor‖x‖, shared) &
+                                          magnitude(Reply‖x‖, shared, equal, AlreadyRead‖x‖, shared) } then {
+
+                                                move(add, next, PopOutcome‖x‖, $Proposer, Proposer)
+                                        }
+                                   }
+                    }
+
+    interaction { PopOutcome‖x‖, { if { size(Reply‖x‖, Proposer, !empty) &
+                                        size(ReplyAuthor‖x‖, Proposer, !empty)  } then {
+
+                                           store(pop, {o}, Reply‖x‖, speaker) &
+                                           store(pop, {s}, ReplyAuthor‖x‖, speaker) &
+                                           move(add, next, PopOutcome‖x‖, $Evaluator, Evaluator)
+                                      } else {
+                                            // When I reach the maximum capacity, I enforce all the players to re-register if they
+                                            // want to subscribe to the next round, and allowing all the players to consume.
+                                            store(empty, Players‖x‖, listener) &
+                                            store(empty, AlreadyRead‖x‖, listener) &
+                                            store(empty, Reply‖x‖, listener) &
+                                            store(empty, ReplyAuthor‖x‖, listener) &
+                                            store(empty, Stack‖x‖, listener) &
+                                            move(add, next, Subscribe‖x‖, Evaluator) // Going back to allowing the next process to subscribe itself
+                                     }
+                                 }
+                   }
+
+
 
 
 ⟧("     ")
-
 }
 ⟫
