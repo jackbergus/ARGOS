@@ -1,15 +1,10 @@
 package uk.jackbergus.communication_test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import uk.jackbergus.ARGA.algorithms.AlgorithmicInstance;
 import uk.jackbergus.ARGA.algorithms.ontology.NAryRelationship;
 import uk.jackbergus.ARGA.algorithms.ontology.NAryRelationshipInstance;
@@ -22,16 +17,8 @@ import uk.jackbergus.ARGA.structure.annotations.Sentence;
 import uk.jackbergus.ARGA.structure.directoryentry.ArgaAnnotationEntry;
 import uk.jackbergus.ARGA.structure.directoryentry.ArgaDocumentEntry;
 import uk.jackbergus.ARGA.structure.locutors.Algorithm;
-import uk.jackbergus.DundeeLogic.ArgGraph;
-import uk.jackbergus.DundeeLogic.ArgMineOutput;
 import uk.jackbergus.DundeeLogic.MinedLinks;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -40,152 +27,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class APINonDGDL {
-
-    public static String getHTML(String urlToRead) throws Exception {
-        StringBuilder result = new StringBuilder();
-        URL url = new URL(urlToRead);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()))) {
-            for (String line; (line = reader.readLine()) != null; ) {
-                result.append(line);
-            }
-        }
-        return result.toString();
-    }
-
-    public static String getMultipartFile(String urlToRead, Map<String, String> fileToContent) {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(urlToRead);
-        httpPost.setHeader("Content-type", "application/json");
-        InputStream response = null;
-        try {
-            StringEntity stringEntity = new StringEntity(mapper.writeValueAsString(fileToContent));
-            httpPost.getRequestLine();
-            httpPost.setEntity(stringEntity);
-            response = httpClient.execute(httpPost).getEntity().getContent();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-            String text = new BufferedReader(
-                    new InputStreamReader(response, StandardCharsets.UTF_8))
-                    .lines()
-                    .collect(Collectors.joining("\n"));
-            return text;
-    }
-
     static CollectionType listOfStringType = TypeFactory.defaultInstance().constructCollectionType(List.class, String.class);
     static CollectionType minedLinksType = TypeFactory.defaultInstance().constructCollectionType(List.class, MinedLinks.class);
-
     static ObjectMapper mapper = new ObjectMapper();
-
-    public static class LinkExtractor {
-
-        private final String server;
-        private final int port;
-
-        public LinkExtractor(AlgorithmicInstance x) {
-            this.server = x.url;
-            this.port = x.port;
-        }
-
-        public List<MinedLinks> linkDocuments(HashMap<String, String> resolver, ArgaDocument src, ArgaDocument dst) {
-            try {
-                HashMap<String, String> map = new HashMap<>();
-                map.put("src", resolver.get(src.mnemonicName.replace("_argumentation", "")));
-                map.put("dst", resolver.get(dst.mnemonicName.replace("_argumentation", "")));
-                String x =  getMultipartFile(server+":"+port+"/extract_links?src="+src.mnemonicName.replace("_argumentation", "")+"&dst="+dst.mnemonicName.replace("_argumentation", ""), map);
-                return mapper.readValue(x, minedLinksType);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public static class Corpus {
-        private final String server;
-        private final int port;
-        private final String corpus;
-
-        public Corpus(String server, int port, String corpus) {
-            this.server = server;
-            this.port = port;
-            this.corpus = corpus;
-        }
-
-        public String getText(String documentId) {
-            if (getDocumentIDs().contains(documentId)) {
-                try {
-                    return getHTML(server+":"+port+"/get/"+corpus+"/"+documentId);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return null;
-        }
-
-        public ArgGraph getArga(String documentId) {
-            if (getDocumentIDs().contains(documentId)) {
-                try {
-                    var str = getHTML(server+":"+port+"/mine/"+corpus+"/"+documentId);
-                    ArgGraph itemWithOwner = mapper.readValue(str, ArgGraph.class);
-                    itemWithOwner.init();
-                    itemWithOwner.json = str;
-                    return itemWithOwner;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return null;
-        }
-
-        public Set<String> getDocumentIDs() {
-            Set<String> s = new HashSet<>();
-            String x;
-            try {
-                x = getHTML(server+":"+port+"/corpora/"+corpus);
-            } catch (Exception e) {
-                return new HashSet<>();
-            }
-            try {
-                List<String> tmp =  mapper.readValue(x, listOfStringType);
-                return new HashSet<>(tmp);
-            } catch (JsonProcessingException e) {
-                return new HashSet<>();
-            }
-        }
-    }
-
-    public static class Corpora {
-        private final String server;
-        private final int port;
-
-        public Corpora(AlgorithmicInstance algo) {
-            this.server = algo.url;
-            this.port = algo.port;
-        }
-
-        public List<Corpus> listCorpora() {
-            String x;
-            try {
-                x = getHTML(server+":"+port+"/corpora");
-            } catch (Exception e) {
-                return new ArrayList<>();
-            }
-            try {
-                List<String> tmp =  mapper.readValue(x, listOfStringType);
-                List<Corpus> ls = new ArrayList<>(tmp.size());
-                for (String y : tmp)
-                    ls.add(new Corpus(server, port, y));
-                return ls;
-            } catch (JsonProcessingException e) {
-                return new ArrayList<>();
-            }
-        }
-
-    }
 
 
     public static void main(String args[]) {
