@@ -45,9 +45,11 @@ BOGUS {
                                          }
                       }
 
-          // Now, the publisher starts sending the data to the subscribers, that are going to reply to the data being passed with some
-          //  data replyThis might have been better expressed with a while-true loop, but anyway, expressing that the publisher shall
-          // repeat in the stack as many arguments as the number of players, while allowing the players only to publish
+          // Now, ARGA starts sending the data {d} to the services, that are going to reply to the data being passed with some
+          //  data reply. This might have been better expressed with a while-true loop, but anyway, stating that the publisher shall
+          // place in the stack as many arguments as the number of players, while allowing the players only to publish needs
+          // to be enforced by the implementation of the communication library. Then, ARGA reads from {l} the complete list of 
+          // services being available.
           interaction { Publish‖x‖ , {  if { magnitude(Stack‖x‖, shared, smaller, Players‖x‖, shared) } then {
                                                 store(add, {d}, Stack‖x‖, listener) &
                                                 move(add, next, Publish‖x‖, $Proposer, {d}, Proposer) &
@@ -60,7 +62,7 @@ BOGUS {
 
 
 
-          // I can consume only if I was previously subscribed to this and if I haven’t read yet
+          // The service can consume {p} from ARGA only if it subscribed to this and if it hasn’t read yet
           interaction { Consume‖x‖ , { if { inspect(!in, {s}, AlreadyRead‖x‖ )  &
                                             inspect(in, {s}, Players‖x‖ ) }  then {
 
@@ -72,6 +74,8 @@ BOGUS {
                                      }
                       }
 
+
+          // I can push the outcome of the computation only if the process was registered and if it already read the information provided by ARGA
           interaction { PushOutcome‖x‖, {    if { inspect(in, {s}, Players‖x‖) &
                                                   inspect(in, {s}, AlreadyRead‖x‖ ) } then {
 
@@ -85,6 +89,10 @@ BOGUS {
                                         }
                       }
 
+              
+              // All the services providing their response to ARGA require to perform an additional action after pushing the data, 
+              // as the language does not allow to test for multiple conditions within the same interaction. The need for performing
+              // this action then needs to be enforced in the implementation of the communication library
               interaction { TestLast‖x‖, { if { magnitude(Players‖x‖, shared, equal, ReplyAuthor‖x‖, shared) &
                                                 magnitude(Reply‖x‖, shared, equal, AlreadyRead‖x‖, shared) &
                                                 magnitude(Players‖x‖, shared, equal, AlreadyRead‖x‖, shared) } then {
@@ -99,6 +107,11 @@ BOGUS {
                                          }
                           }
 
+          // This is the actual part where ARGA will obtain the answer from the broadcast request to all the services subscribed to action ||x||
+          // ARGA will then pop all the responses {o} for the services {s} and will provide an association s->o at the library level.
+          // After all of this is done, we have to clear all of the containers and allow the services to subscribe again to receive 
+          // requests from ARGA. This is the only way we can currently mitigate possible effects of service crash (just between different
+          // runs of the requests)
           interaction { PopOutcome‖x‖, { if { size(Reply‖x‖, Proposer, !empty) &
                                               size(ReplyAuthor‖x‖, Proposer, !empty)  } then {
 

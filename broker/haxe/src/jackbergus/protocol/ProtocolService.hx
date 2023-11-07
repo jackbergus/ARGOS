@@ -120,14 +120,6 @@ class ProtocolService {
                         busyWait:Bool
                         ) {
         var r:Null<Map<String,String>> = null;                    
-        /*if (busyWait)  {
-            while (!canIDoActionQM(action, inNext, inFuture))
-                Sys.sleep(this.s);
-        } else {
-            if (!canIDoActionQM(action, inNext, inFuture))
-                return r;
-        }*/
-
         if (!isActionAvailable(action, busyWait)) 
             return r;
         var i = new Interaction(action, self, target);

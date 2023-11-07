@@ -30,8 +30,8 @@ public class NAryRelationship extends TableWithIdPrimaryIndex {
      */
     public static class NAryRelationshipArgument {
 
-        @UniqueIndex @SQLType(type = "bigint")
-        public Long id;
+//        @UniqueIndex @SQLType(type = "bigint")
+//        public Long id;
 
         /**
          * Mnemonic and semantic-providing of the n-th argument
@@ -44,6 +44,11 @@ public class NAryRelationship extends TableWithIdPrimaryIndex {
          */
         @SQLType(type = "varchar")
         public SynSet type;
+
+        public NAryRelationshipArgument(String argumentName) {
+            this.argumentName = argumentName;
+            this.type = null;
+        }
     }
 
 }

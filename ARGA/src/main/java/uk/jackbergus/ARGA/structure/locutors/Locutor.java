@@ -11,8 +11,6 @@ import uk.jackbergus.ARGA.utils.TableWithIdPrimaryIndex;
 //@Table(name="locutor")
 	@Table(sqlTable = "locutor")
 public class Locutor extends TableWithIdPrimaryIndex {
-
-
 	/**
 	 * Uniquely accepted name
 	 */
@@ -34,4 +32,6 @@ public class Locutor extends TableWithIdPrimaryIndex {
 //	@Column(name="affiliation")
 	@SQLType(type = "varchar")
 	public String affiliation;
+
+
 }

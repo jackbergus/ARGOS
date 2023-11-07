@@ -1,6 +1,7 @@
 package uk.jackbergus.ARGA.structure;
 
 import uk.jackbergus.ARGA.structure.directoryentry.ArgaDirectoryEntry;
+import uk.jackbergus.ARGA.structure.pot.PartOfText;
 
 /**
  * 
@@ -10,7 +11,7 @@ import uk.jackbergus.ARGA.structure.directoryentry.ArgaDirectoryEntry;
 public class ArgaDocumentCoordinates {
 //	@Id
 //	@GeneratedValue
-	private Long id;
+//	private Long id;
 
 //	@OneToOne(mappedBy = "main_source", cascade = CascadeType.ALL)
 	public ArgaDocument mainSource;
@@ -19,5 +20,5 @@ public class ArgaDocumentCoordinates {
 	public ArgaDirectoryEntry entryReference;
 
 //	@OneToOne(mappedBy = "entry_reference", cascade = CascadeType.ALL)
-	public ArgaBlock atomicReference;
+	public PartOfText atomicReference;
 }

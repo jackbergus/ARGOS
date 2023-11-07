@@ -174,21 +174,31 @@ class Main {
                                        }
                        }
       }
+
         ";
         
+        // Determining the service name
         var service = "service"+serviceID;
 
+        // Programmatically defining the participant name and its role
         var participants = new Participant();
         participants.add("client", "Proposer");
         participants.add("service1", "Evaluator");
         participants.add("service2", "Evaluator");
 
+        // Defining a connection as an host with a port
         var connection:ConnectionLogic = new ConnectionLogic("127.0.0.1",5000);
-        var pl:ProtocolLogic = connection.newProtocol("test_game", game);//connection.getProtocol("test_game"); //
+        // The connection generates a protocol by associating a name to a \forall DGDL+ instance
+        // Alternatively, if the protocol already exists, we can call connection.getProtocol("test_game")
+        // instead
+        var pl:ProtocolLogic = connection.newProtocol("test_game", game);
+        // Establishing a new instance of a dialogue from the protocol, which name is "0"
         var dl:DialogueLogic = pl.newDialogue("0", participants, service);
-
+        // Defining a new server class
         var service1 = new Testing(dl, serviceID, "interactionA");
+        // Running it as a single-threaded service
         service1.server();
+        // Service exiting with an error
         trace("EXIT");
     }
 }

@@ -18,8 +18,8 @@ public class SynSet {
 	/**
 	 * Unique indentifier for the SenseSet
 	 */
-	@UniqueIndex @SQLType(type = "varchar")
-	public String id;
+//	@UniqueIndex @SQLType(type = "varchar")
+//	public String id;
 
 	/**
 	 * Collection of disambiguated Lexemes by Polysemy-id referring to the same concept. This provides the type definition

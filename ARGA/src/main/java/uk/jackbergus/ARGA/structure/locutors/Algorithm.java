@@ -24,4 +24,9 @@ public class Algorithm extends Locutor{
 	 */
 	public Formula fol_effects;
 
+	public Algorithm(String name) {
+		this.name = name;
+		fol_effects = fol_requirements = null;
+	}
+
 }

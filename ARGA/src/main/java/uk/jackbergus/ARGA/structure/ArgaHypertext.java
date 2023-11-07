@@ -21,4 +21,13 @@ public class ArgaHypertext {
 	 * The Arga Hypertext is then defined as a collection of documents.
 	 */
 	public List<ArgaDocument> references;
+
+	public ArgaHypertext(String mnemonic) {
+		mnemonicName = mnemonic;
+		references = new ArrayList<>();
+	}
+
+	public void addDocument(ArgaDocument doc) {
+		references.add(doc);
+	}
 }

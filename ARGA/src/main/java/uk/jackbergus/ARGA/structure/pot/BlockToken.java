@@ -13,13 +13,12 @@ public class BlockToken extends PartOfText {
 
 	/**
 	 * Determining the start and end index from the collected objects
-	 * @param id		Object id
 	 * @param text		Text summarising the content "faithfully"
 	 * @param content	Actual content
 	 */
-	public BlockToken(long id, String text, List<PartOfText> content) {
+	public BlockToken(String text, List<PartOfText> content) {
 		this.content = content;
-		this.id = id;
+//		this.id = id;
 		this.text = text;
 		start = Integer.MAX_VALUE;
 		end = Integer.MIN_VALUE;

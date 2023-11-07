@@ -15,8 +15,8 @@ import java.util.List;
 public class ArgaDirectoryEntry {
 //	@Id
 //	@GeneratedValue
-	@UniqueIndex
-	private Long id;
+//	@UniqueIndex
+//	private Long id;
 
 //	@OneToMany(mappedBy = "authorship", cascade = CascadeType.ALL)
 	public List<Locutor> authorship = new ArrayList<>();

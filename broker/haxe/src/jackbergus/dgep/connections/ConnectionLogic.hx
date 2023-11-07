@@ -25,13 +25,13 @@ import jackbergus.dgep.messages.ProtocolMessage;
 import jackbergus.dgep.messages.DialogueMessage;
 import jackbergus.dgep.requests.Interaction;
 
+
 @:keep
 class DialogueLogic {
     var x:ConnectionRaw;
     var protocolName:String;
     var dialogueName:String;
     var msg:Null<DialogueMessage>;
-    //var iWriter:json2object.JsonWriter<Interaction>; // Creating a writer for Cls class
 
     @:keep
     public function getMovesFromMessage():Map<String, List<Move>> {
@@ -48,7 +48,6 @@ class DialogueLogic {
         protocolName = protocol;
         dialogueName = dialogue;
         this.msg = msg;
-        //iWriter = new json2object.JsonWriter<Interaction>();
     }
 
     @:keep

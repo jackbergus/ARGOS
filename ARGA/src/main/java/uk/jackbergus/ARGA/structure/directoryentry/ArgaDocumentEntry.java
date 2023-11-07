@@ -18,5 +18,6 @@ public class ArgaDocumentEntry extends ArgaDirectoryEntry {
 //	@Column(name = "annotated")
 	public boolean isAnnotated;
 
+	public String text; // ADDED!
 
 }
