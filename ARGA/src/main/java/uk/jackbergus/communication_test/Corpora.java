@@ -23,7 +23,7 @@ public class Corpora {
             return new ArrayList<>();
         }
         try {
-            List<String> tmp = APINonDGDL.mapper.readValue(x, APINonDGDL.listOfStringType);
+            List<String> tmp = ARGA_API.mapper.readValue(x, ARGA_API.listOfStringType);
             List<Corpus> ls = new ArrayList<>(tmp.size());
             for (String y : tmp)
                 ls.add(new Corpus(server, port, y));

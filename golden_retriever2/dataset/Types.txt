@@ -1,0 +1,36 @@
+ASPIC: defines the notions of an argument, argument ordering, attack and defeat, 
+and the representation in the AIF leverages those definitions, as the AIF itself
+is largely agnostic about the exact ‘semantics’ of the represented notions.
+
+Terminology of Rule Application: RA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Inferences (and arguments)
+* take any number of incoming edges and have as their target the I-node representing the abstract argument
+* combination of RA-nodes and their predecessors and successors in AIF
+
+Attack nodes : AA
+~~~~~~~~~~~~~~~~~~
+
+Defeat nodes : DA
+~~~~~~~~~~~~~~~~~
+
+Conflict Scheme Application: CA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Represent conflicts between elemenfs of AIF
+
+Rephrase: MA
+~~~~~~~~~~~~~
+Semantic proximity between propositional content
+
+Preference Application: (PA)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Preference of one I-/S-node over another
+* between two initial I-nodes or between two RA-nodes
+* preferences in ASPIC between either elements of the knowledge base or defeasible inference rules, respectively
+
+Transitions between Locutions: (TA)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+: (YA)
+~~~~~~
+to L-nodes and TA-nodes

@@ -31,7 +31,7 @@ public class AlgorithmicInstance extends Locutor {
 	public int port;
 
 	/**
-	 * Main address
+	 * uk.jackbergus.ARGA.Main address
 	 */
 //	@Column
 	@SQLType(type = "String")

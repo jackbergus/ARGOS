@@ -35,7 +35,7 @@ public class CommunicationUtils {
         httpPost.setHeader("Content-type", "application/json");
         InputStream response = null;
         try {
-            StringEntity stringEntity = new StringEntity(APINonDGDL.mapper.writeValueAsString(fileToContent));
+            StringEntity stringEntity = new StringEntity(ARGA_API.mapper.writeValueAsString(fileToContent));
             httpPost.getRequestLine();
             httpPost.setEntity(stringEntity);
             response = httpClient.execute(httpPost).getEntity().getContent();

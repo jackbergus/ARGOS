@@ -1,59 +1,14 @@
-# from flask import render_template, request, redirect, session, Markup
-# from . import application
-# import pandas as pd
-# from urllib.request import urlopen
-from collections.abc import Sequence
 import requests
 import json
-# import urllib
-# import tempfile
 import os
 import uuid
-# import nltk
 from nltk.tokenize import sent_tokenize
-# from joblib import load
 from linker.centrality import Centrality
 from linker.SentenceSimilarity import SentenceSimilarity
 from fuzzywuzzy import fuzz
 import spacy
 from copy import deepcopy
-# import glob
-# import ast
 from collections import defaultdict
-
-
-
-
-# @application.route('/')
-# @application.route('/index')
-# def index():
-#     return redirect('/home')
-# @application.route('/home')
-# def home_render():
-#     return render_template('home.html')
-
-# @application.route('/home', methods=['POST'])
-# def index_post():
-#     aif_mode = 'false'
-#     han_mode = 'false'
-#     ex_aif_mode = 'false'
-#     s_date = ''
-#     external_text = request.form['edata']
-#     source_text = request.form['sdata']
-#     aif_mode = request.form['aif_mode']
-#     ex_aif_mode = request.form['ex_aif_mode']
-#     han_mode = request.form['han_mode']
-#     s_date = request.form['date']
-#     session['s_date'] = s_date
-#     session['s_text'] = source_text
-#     session['e_text'] = external_text
-#     session['aif'] = aif_mode
-#     session['han'] = han_mode
-#     session['e_aif'] = ex_aif_mode
-#
-#     return redirect('/results')
-
-
 
 def actual_doing(src_id, dst_id,
                  source_text,
@@ -97,24 +52,6 @@ def actual_doing(src_id, dst_id,
         itc_map_number = None
     return itc_relations
 
-# @application.route('/results')
-# def render_text():
-#     source_text = session.get('s_text', None)
-#     external_text = session.get('e_text', None)
-#     aif_mode = session.get('aif', None)
-#     han_mode = session.get('han', None)
-#     ex_aif_mode = session.get('e_aif', None)
-#     source_date = session.get('s_date', None)
-#     (source_map_numbers_links, ex_map_number_links, ex_map_number_links, itc_number, itc_relations) = actual_doing(source_text, external_text, aif_mode, han_mode, ex_aif_mode, source_date)
-#     return render_template('results.html', source_text=source_text, source_maps_links = source_map_numbers_links, ex_map_links = ex_map_number_links, itc_number=itc_number, itc_relations=itc_relations)
-# def create_argview_links(map_numbers):
-#     link_list = []
-#     for nodeset in map_numbers:
-#         link = 'http://www.aifdb.org/argview/' + str(nodeset)
-#
-#         link_list.append(link)
-#
-#     return link_list
 def get_new_itc_map(nodeset_id):
     new_map_id = get_arg_schemes(nodeset_id)
 
@@ -133,63 +70,6 @@ def get_new_map_nums(s_map_numbers):
         else:
             new_maps.append(new_map_id)
     return new_maps
-
-# def sent_to_df(txt):
-#     txt_pred = {'text': [txt]}
-#     df = pd.DataFrame(data=txt_pred)
-#     return df
-
-# def predict_topic(df):
-#     model_path = 'static/model/final_final_hansard_topic_model_seed.joblib'
-#     with application.open_resource(model_path) as load_m:
-#         loaded_m = load(load_m)
-#     pred = loaded_m.predict(df['text'])
-#     result = pred[0]
-#     return result
-
-# def get_hansard_file_path(input_date, topic, han_directory):
-#     files_list = []
-#     for subdir, dirs, files in os.walk(os.path.join(application.static_folder, han_directory)):
-#         for file_name in files:
-#             if 'txt' in file_name:
-#                 full_path = subdir + '/' + file_name
-#                 date = subdir.split(os.path.sep)[1]
-#                 date = date.replace("-","")
-#                 file = str(file_name).lower()
-#                 file_tup = (full_path, date, file)
-#                 files_list.append(file_tup)
-#
-#     sorted_files = sorted(files_list, key=lambda tup: tup[1], reverse=True)
-#     input_date = input_date.replace('-', '')
-#     selected_file = ''
-#     for tup in sorted_files:
-#         date = tup[1]
-#         file_name = tup[2]
-#         file_path = tup[0]
-#         if input_date < date:
-#             continue
-#         else:
-#             if topic in file_name:
-#                 selected_file = file_path
-#
-#     if selected_file == '':
-#         for tup in sorted_files:
-#             date = tup[1]
-#             file_name = tup[2]
-#             file_path = tup[0]
-#             if topic in file_name:
-#                 selected_file = file_path
-#
-#     if not selected_file == '':
-#         selected_file = selected_file.split('/app/')[1]
-#     return selected_file
-
-# def get_hansard_text(file_path):
-#
-#     with application.open_resource(file_path) as text_file:
-#         text = text_file.read()
-#     #text = text.encode('utf-8')
-#     return text
 
 def text_to_lines(textData):
     fin_list = []
@@ -417,22 +297,6 @@ def process_text(txt):
     # and? .? ,? because?
     return txt
 
-# def get_topic_text(central_nodes_tup_list):
-#     overall_text = ''
-#     for tup in central_nodes_tup_list:
-#         txt = tup[1]
-#         parsed_text = get_parsed_text(txt)
-#         overall_text = overall_text + parsed_text + ' '
-#     return overall_text
-
-# def do_amf_calls(s_txt, test_flag):
-#     s_txt_lst = text_to_lines(s_txt)
-#     removetable = str.maketrans('', '', '@#%-;')
-#     out_list = [s.translate(removetable) for s in s_txt_lst]
-#     chunks = chunk_words(out_list)
-#     s_map_numbers = call_amf(chunks, test_flag)
-#     return s_map_numbers
-
 def itc_matrix(source_nodes, other_nodes, ma_thresh, ra_thresh):
     relations = []
     for node in source_nodes:
@@ -464,35 +328,6 @@ def itc_matrix(source_nodes, other_nodes, ma_thresh, ra_thresh):
 
     return relations
 
-
-# def check_hansard_path(hansard_fp):
-#     file_name = 'hansard_maps.csv'
-#
-#     files_present = glob.glob(file_name)
-#
-#     if not files_present:
-#         return ['']
-#     else:
-#         hansard_df = pd.read_csv(file_name)
-#
-#         sel_df = hansard_df[hansard_df['filename'] == hansard_fp]
-#         if len(sel_df) < 1:
-#             return ['']
-#         else:
-#             sel_df.reset_index(inplace=True)
-#             return sel_df['map_id'][0]
-# def write_to_csv(map_numbers, hansard_fp):
-#     file_name = 'hansard_maps.csv'
-#
-#     files_present = glob.glob(file_name)
-#
-#     if not files_present:
-#         #create df and write
-#         df = pd.DataFrame({'filename': hansard_fp, 'map_id': [map_numbers]})
-#         df.to_csv(file_name)
-#     else:
-#         df = pd.DataFrame({'filename': hansard_fp, 'map_id': [map_numbers]})
-#         df.to_csv(file_name, mode='a', header=False)
 
 def get_l_node_text(i_node_id, lnode_inode_list, l_node_list):
     for rel_tup in lnode_inode_list:
@@ -590,14 +425,8 @@ def build_itc_map(relations, source_l_i_list, ex_l_i_list, source_l_list, ex_l_l
         if not aif_flags:
             source_l = get_l_node_text(s_i_id, source_l_i_list, source_l_list)
             ex_l = get_l_node_text(ex_i_id, ex_l_i_list, ex_l_list)
-
-
-            s_l_id = source_l[0]
             s_l_text = source_l[1]
-
-            ex_l_id = ex_l[0]
             ex_l_text = ex_l[1]
-
 
         if rel == 'MA':
             ya = 'Restating'
@@ -610,7 +439,6 @@ def build_itc_map(relations, source_l_i_list, ex_l_i_list, source_l_list, ex_l_l
             scheme_text = 'Default Conflict'
 
         if not aif_flags:
-
             rel_tuple = (s_i_text, s_l_text, ex_i_text, ex_l_text, rel, scheme_text, ya)
             map_rels.append(rel_tuple)
         else:
@@ -619,12 +447,7 @@ def build_itc_map(relations, source_l_i_list, ex_l_i_list, source_l_list, ex_l_l
 
     aif_json = build_itc_json(map_rels, aif_flags)
     url_aif = 'http://www.aifdb.org/json/'
-    # map_response = aif_upload(url_aif, aif_json)
-    # map_data = json.loads(map_response)
-    # map_id = map_data['nodeSetID']
-
     return aif_json
-
 
 def get_arg_schemes(nodeset):
     cent = Centrality()

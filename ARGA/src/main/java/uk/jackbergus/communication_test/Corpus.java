@@ -18,6 +18,10 @@ public class Corpus {
         this.corpus = corpus;
     }
 
+    public String getCorpus() {
+        return corpus;
+    }
+
     public String getText(String documentId) {
         if (getDocumentIDs().contains(documentId)) {
             try {
@@ -32,8 +36,9 @@ public class Corpus {
     public ArgGraph getArga(String documentId) {
         if (getDocumentIDs().contains(documentId)) {
             try {
+
                 var str = CommunicationUtils.getHTML(server + ":" + port + "/mine/" + corpus + "/" + documentId);
-                ArgGraph itemWithOwner = APINonDGDL.mapper.readValue(str, ArgGraph.class);
+                ArgGraph itemWithOwner = ARGA_API.mapper.readValue(str, ArgGraph.class);
                 itemWithOwner.init();
                 itemWithOwner.json = str;
                 return itemWithOwner;
@@ -53,7 +58,7 @@ public class Corpus {
             return new HashSet<>();
         }
         try {
-            List<String> tmp = APINonDGDL.mapper.readValue(x, APINonDGDL.listOfStringType);
+            List<String> tmp = ARGA_API.mapper.readValue(x, ARGA_API.listOfStringType);
             return new HashSet<>(tmp);
         } catch (JsonProcessingException e) {
             return new HashSet<>();

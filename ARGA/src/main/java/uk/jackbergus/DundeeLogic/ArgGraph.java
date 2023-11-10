@@ -19,6 +19,7 @@ public class ArgGraph {
     public HashMap<String, ArgNode> nodeMap = null;
     @JsonIgnore
     public HashMap<String, HashMap<String, List<ArgEdge>>> edgeMap = null;
+    @JsonIgnore
     public HashMap<String, HashSet<String>> locutorMap = null;
 
 
@@ -32,7 +33,7 @@ public class ArgGraph {
             for (var x : nodes) {
                 nodeMap.put(x.nodeID, x);
             }
-            nodes.clear();
+//            nodes.clear();
         }
         if (edges != null) {
             for (var x : edges) {
@@ -43,7 +44,7 @@ public class ArgGraph {
                 }
                 edgeMap.get(x.fromID).get(x.toID).add(x);
             }
-            edges.clear();
+//            edges.clear();
         }
         if (locutions != null) {
             locutorMap = new HashMap<>();
@@ -53,7 +54,7 @@ public class ArgGraph {
                 }
                 locutorMap.get(x.personID).add(x.nodeID);
             }
-            locutions.clear();
+//            locutions.clear();
         }
         initialised = true;
     }

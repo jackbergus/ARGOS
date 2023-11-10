@@ -17,13 +17,15 @@ public class LinkExtractor {
         this.port = x.port;
     }
 
-    public List<MinedLinks> linkDocuments(HashMap<String, String> resolver, ArgaDocument src, ArgaDocument dst) {
+    public List<MinedLinks> linkDocuments(HashMap<String, HashMap<String, String>> resolver,
+                                          String ArgaCorpusSRC, ArgaDocument src,
+                                          String ArgaCorpusDST, ArgaDocument dst) {
         try {
             HashMap<String, String> map = new HashMap<>();
-            map.put("src", resolver.get(src.mnemonicName.replace("_argumentation", "")));
-            map.put("dst", resolver.get(dst.mnemonicName.replace("_argumentation", "")));
+            map.put("src", resolver.get(ArgaCorpusSRC).get(src.mnemonicName.replace("_argumentation", "")));
+            map.put("dst", resolver.get(ArgaCorpusDST).get(dst.mnemonicName.replace("_argumentation", "")));
             String x = CommunicationUtils.getMultipartFile(server + ":" + port + "/extract_links?src=" + src.mnemonicName.replace("_argumentation", "") + "&dst=" + dst.mnemonicName.replace("_argumentation", ""), map);
-            return APINonDGDL.mapper.readValue(x, APINonDGDL.minedLinksType);
+            return ARGA_API.mapper.readValue(x, ARGA_API.minedLinksType);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
