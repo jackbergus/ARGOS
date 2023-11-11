@@ -1,19 +1,11 @@
 from tkinter import *
 import yaml
-from tkinter.ttk import Combobox
 import requests
 import matplotlib
-from matplotlib.figure import Figure
 import linker
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 import networkx as nx
-import numpy as np
-# importing networkx
-import networkx as nx
-
-# importing matplotlib.pyplot
 import matplotlib.pyplot as plt
 
 
@@ -167,17 +159,34 @@ def retriveLoaded():
     graph_json = requests.get(cfg["service"] + "joined").json()
     graphForPlotting(graph_json, secondary_window)
 
-
+"""
+This button shows the full-text argumentation from the current data
+"""
 B = Button(window, text ="Text", command = textCallBack)
 B.pack()
+"""
+This button shows the argumentation graph associated to the full-text
+"""
 A = Button(window, text ="Argumentation", command = callbackGrapp)
 A.pack()
+"""
+This command tells ARGA to store this into the OO-database
+"""
 S = Button(window, text ="Store", command = storeInDB)
 S.pack()
+"""
+This command stores a document being selected to be linked (either a source or a target)
+"""
 P = Button(window, text ="Push", command = pushPair)
 P.pack()
+"""
+This comand performs the link across the documents being linked
+"""
 L = Button(window, text ="Link", command = linkPairs)
 L.pack()
+"""
+This command retrieves the argumentation graph being stored and cross-linked
+"""
 R = Button(window, text ="Retrieve", command = retriveLoaded)
 R.pack()
 

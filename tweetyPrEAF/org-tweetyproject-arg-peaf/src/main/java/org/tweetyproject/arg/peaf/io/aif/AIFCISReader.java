@@ -20,15 +20,15 @@ public class AIFCISReader {
     /**
      * The path of the aif or cis file path
      */
-    private final String pathString;
+//    private final String pathString;
 
     /**
      * Default constructor for AIFCISReader
      *
      * @param pathString aif or cis file path
      */
-    public AIFCISReader(String pathString) {
-        this.pathString = pathString;
+    public AIFCISReader() {
+//        this.pathString = pathString;
     }
 
     /**
@@ -53,10 +53,10 @@ public class AIFCISReader {
                     continue;
                 }
                 throw new UnsupportedNodeTypeException("The given AIF has an unsupported node type: "
-                        + aifjsonNode.type + " nodeID: " + aifjsonNode.nodeID + " text: " + aifjsonNode.text + "\n in " + pathString);
+                        + aifjsonNode.type + " nodeID: " + aifjsonNode.nodeID + " text: " + aifjsonNode.text + "\n in " );
             }
             if (aif.nodeMap.containsKey(aifjsonNode.nodeID)) {
-                throw new DuplicateNodeIDException("The node ID: " + aifjsonNode.nodeID + " is a duplicate." + "\n in " + pathString);
+                throw new DuplicateNodeIDException("The node ID: " + aifjsonNode.nodeID + " is a duplicate." + "\n in ");
             }
 
             AIFNode aifNode = new AIFNode(aifjsonNode.nodeID, type, aifjsonNode.text);
@@ -80,13 +80,13 @@ public class AIFCISReader {
 
             AIFNode fromNode = aif.nodeMap.get(fromID);
             if (fromNode == null) {
-                System.err.println("Warning: The given edge with id: " + edge.edgeID + " fromID: " + fromID + " node does not exist." + "\n in " + pathString);
+                System.err.println("Warning: The given edge with id: " + edge.edgeID + " fromID: " + fromID + " node does not exist." + "\n in " );
                 continue;
             }
 
             AIFNode toNode = aif.nodeMap.get(toID);
             if (toNode == null) {
-                System.err.println("Warning: The given edge with id: " + edge.edgeID + " toID: " + toID + " node does not exist." + "\n in " + pathString);
+                System.err.println("Warning: The given edge with id: " + edge.edgeID + " toID: " + toID + " node does not exist." + "\n in " );
                 continue;
             }
 
@@ -98,7 +98,7 @@ public class AIFCISReader {
                 toNode.getFroms().add(fromNode);
             } else {
                 System.err.println("Warning: The edge id: " + edge.edgeID + " is not supported by tweetyPrEAF since, toID: " + toID + " fromID: " +
-                        fromID + " fromType: " + fromNode.nodeType.toString() + " toType: " + toNode.nodeType.toString() + "\n in " + pathString);
+                        fromID + " fromType: " + fromNode.nodeType.toString() + " toType: " + toNode.nodeType.toString() + "\n in " );
             }
         }
 
@@ -111,13 +111,13 @@ public class AIFCISReader {
      * @return AIFTheory object
      * @throws FileNotFoundException if the file is not found in the given file path
      */
-    public AIFTheory read() throws FileNotFoundException {
-        Gson gson = new Gson();
-        JsonReader reader = new JsonReader(new FileReader(pathString));
-
-        AIFJSONTheory aifJSON = gson.fromJson(reader, AIFJSONTheory.class);
-        return this.read(aifJSON);
-    }
+//    public AIFTheory read() throws FileNotFoundException {
+//        Gson gson = new Gson();
+//        JsonReader reader = new JsonReader(new FileReader(pathString));
+//
+//        AIFJSONTheory aifJSON = gson.fromJson(reader, AIFJSONTheory.class);
+//        return this.read(aifJSON);
+//    }
 
     /**
      * This function checks the validity of the connection between nodes.

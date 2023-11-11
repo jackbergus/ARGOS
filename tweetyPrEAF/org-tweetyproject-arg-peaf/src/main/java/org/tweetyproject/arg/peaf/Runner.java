@@ -80,28 +80,49 @@ public class Runner {
         JsonReader jsonReader = new JsonReader(new FileReader(inputFilePath));
         AIFJSONTheory aifJSON = gson.fromJson(jsonReader, AIFJSONTheory.class);
 
-        AIFCISReader reader = new AIFCISReader(inputFilePath);
-        AIFTheory aifTheory = reader.read(aifJSON);
-        AIFtoPEEAFConverter aifConverter = new AIFtoPEEAFConverter();
-        PEEAFTheory peeafTheory = aifConverter.convert(aifTheory);
-        PEEAFToPEAFConverter peeafConverter = new PEEAFToPEAFConverter();
-        peeafTheory.prettyPrint();
+        actualRunningForTheories(outputFilePath, aifJSON);
+    }
 
-        NamedPEAFTheory peaf = peeafConverter.convert(peeafTheory);
-        peaf.prettyPrint();
-        peaf.prettyPrintWithoutNames();
-
-        if (aifJSON.analyses != null) {
-            runAnalyses(outputFilePath, aifJSON, peeafTheory, peeafConverter);
-        } else {
+    public static AIFJSONAnalysisResult[] actualRunningForTheories(String outputFilePath,
+                                                                    AIFJSONTheory aifJSON) {
+        if ((aifJSON.analyses == null) || (aifJSON.analyses.length == 0)){
             System.err.println("Analyses field in the given aif json was not found.");
+            return null;
+        } else {
+            AIFCISReader reader = new AIFCISReader();
+            AIFTheory aifTheory = reader.read(aifJSON);
+            AIFtoPEEAFConverter aifConverter = new AIFtoPEEAFConverter();
+            PEEAFTheory peeafTheory = aifConverter.convert(aifTheory);
+            PEEAFToPEAFConverter peeafConverter = new PEEAFToPEAFConverter();
+            peeafTheory.prettyPrint();
+
+            NamedPEAFTheory peaf = peeafConverter.convert(peeafTheory);
+            peaf.prettyPrint();
+            peaf.prettyPrintWithoutNames();
+
+            try {
+                runAnalyses(outputFilePath, aifJSON, peeafTheory, peeafConverter);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+
+            if (outputFilePath != null) {
+                try (Writer writer = new FileWriter(outputFilePath)) {
+                    Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+                    gsonPretty.toJson(aifJSON, writer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            AIFJSONAnalysisResult[] result = new AIFJSONAnalysisResult[aifJSON.analyses.length];
+            for (int i = 0; i<aifJSON.analyses.length; i++) {
+                result[i] = aifJSON.analyses[i].result;
+            }
+            return result;
         }
 
-
-        try (Writer writer = new FileWriter(outputFilePath)) {
-            Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
-            gsonPretty.toJson(aifJSON, writer);
-        }
     }
 
     private static void runAnalyses(String outputFilePath,
@@ -205,9 +226,11 @@ public class Runner {
                 analysis.result.status = builder.toString();
 
 
-                try (Writer writer = new FileWriter(outputFilePath)) {
-                    Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
-                    gsonPretty.toJson(aifJSON, writer);
+                if (outputFilePath != null) {
+                    try (Writer writer = new FileWriter(outputFilePath)) {
+                        Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+                        gsonPretty.toJson(aifJSON, writer);
+                    }
                 }
 
                 System.exit(1);
