@@ -17,6 +17,18 @@ public class LinkExtractor {
         this.port = x.port;
     }
 
+    public boolean hasARGALinker() {
+        try {
+            HashMap<String, String> map = new HashMap<>();
+            map.put("src", "null");
+            map.put("dst", "null");
+            String x = CommunicationUtils.getMultipartFile(server + ":" + port + "/extract_links?src=SRC&dst=DST", map);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public List<MinedLinks> linkDocuments(HashMap<String, HashMap<String, String>> resolver,
                                           String ArgaCorpusSRC, ArgaDocument src,
                                           String ArgaCorpusDST, ArgaDocument dst) {

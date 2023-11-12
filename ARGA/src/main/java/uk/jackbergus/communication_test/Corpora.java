@@ -15,6 +15,15 @@ public class Corpora {
         this.port = algo.port;
     }
 
+    public boolean hasGoldenRetriever() {
+        try {
+             CommunicationUtils.getHTML(server + ":" + port + "/corpora");
+             return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public List<Corpus> listCorpora() {
         String x;
         try {

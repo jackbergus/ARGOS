@@ -23,8 +23,21 @@ public class BackendServer {
         SpringApplication.run(BackendServer.class, args);
     }
 
-    // The `GetMapping` annotation indicates that this method should be called
-    // when handling GET requests to the "/simple-request" endpoint
+    @GetMapping("/error")
+    public String error() {
+        return "ERROR";
+    }
+
+    @GetMapping("/has/GoldenRetriever")
+    public boolean hasGoldenRetriever() {
+        return backend.hasGoldenRetriever();
+    }
+
+    @GetMapping("/has/ARGALinker")
+    public boolean hasARGALinker() {
+        return backend.hasARGALinker();
+    }
+
     @GetMapping("/list-corpora")
     public List<String> listCorpora() {
         // In this case, we return the plain text response "ok"
@@ -44,12 +57,6 @@ public class BackendServer {
     @GetMapping("/argument/{corpusId}/{documentId}")
     public ArgGraph getArgumentationGraph(@PathVariable(name = "corpusId") String corpusId, @PathVariable(name = "documentId") String documentId) {
         return backend.getDocumentArgumentationGraphOriginal(corpusId, documentId);
-//        try {
-//            var str = mapper.writeValueAsString(g);
-//            return str;
-//        } catch (JsonProcessingException e) {
-//            return null;
-//        }
     }
 
     @PostMapping("/load/{corpusId}/{documentId}")

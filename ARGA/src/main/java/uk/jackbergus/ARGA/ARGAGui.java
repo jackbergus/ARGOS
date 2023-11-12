@@ -148,10 +148,14 @@ public class ARGAGui {
                 }
         }));
         linkGraphs.addMouseListener(onClickMethod(me -> {
-            for (var x : ls) {
-                for (var y : ls) {
-                    if (!Objects.equals(x,y))
-                        server.linkGraphs(x.getKey(), x.getValue(), y.getKey(), y.getValue());
+            if (!server.hasARGALinker()) {
+                JOptionPane.showMessageDialog(null, "Python ARGALinker (dundee_linker.py) is not running: this program will not link documents", "Service Missing", JOptionPane.WARNING_MESSAGE);
+            } else {
+                for (var x : ls) {
+                    for (var y : ls) {
+                        if (!Objects.equals(x,y))
+                            server.linkGraphs(x.getKey(), x.getValue(), y.getKey(), y.getValue());
+                    }
                 }
             }
         }));
@@ -182,6 +186,11 @@ public class ARGAGui {
         initLookAndFeel();
         // TODO: place custom component creation code here
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+
+        if (!server.hasGoldenRetriever()) {
+            JOptionPane.showMessageDialog(null, "Python GolenRetriever (mock_miner.py) is not running: this program will stop", "Service Missing", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
 
 //        HashMap<String, DefaultMutableTreeNode> corpora = new HashMap<>();
 //        HashMap<String, List<DefaultMutableTreeNode>> corpusContent = new HashMap<>();

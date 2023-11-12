@@ -119,6 +119,10 @@ public class ARGA_API {
         return (loc != null) && (Objects.equals(loc.affiliation, "ARGA Document") && Objects.equals(loc.role, "Corpus") && Objects.equals(loc.name, corpusId));
     }
 
+    public boolean hasGoldenRetriever() {
+        return corpora.hasGoldenRetriever();
+    }
+
     /**
      * Listing all the corpora being available
      * @return  List of corpora of interest
@@ -289,6 +293,10 @@ public class ARGA_API {
         } else {
             System.err.println("UNEXPECTED ERROR: expecting the dataset to contain the corpus");
         }
+    }
+
+    public boolean hasARGALinker() {
+        return linker.hasARGALinker();
     }
 
     private void crossLink(HashMap<String, HashMap<String, String>> resolver,
