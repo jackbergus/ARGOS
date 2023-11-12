@@ -7,9 +7,11 @@ import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
 import sdsProject.GraphStreamView;
+import uk.jackbergus.DundeeLogic.AnalysisType;
 import uk.jackbergus.DundeeLogic.ArgGraph;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -17,11 +19,13 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
+/**
+ * Running ARGA as a minimalistic GUI App, while using the mock-server operations
+ */
 public class ARGAGui {
     public static BackendServer server;
     private JTree corpora;
@@ -33,6 +37,18 @@ public class ARGAGui {
     private JButton linkGraphs;
     private JButton load;
     private JButton viewLoadedButton;
+    private JTable queryableNodes;
+    private JLabel q;
+    private JComboBox analysisType;
+    private JCheckBox isGroundedOtherwisePreferredCheckBox;
+    private JButton fillEntryPointsButton;
+    private JButton fillTargetsButton;
+    private JButton fillObjectivesButton;
+    private JList entries;
+    private JList targets;
+    private JList objectives;
+    private JButton Run;
+    private JTextArea queryResult;
     private JPanel graphPane;
 
     private static void initLookAndFeel() {
@@ -151,10 +167,26 @@ public class ARGAGui {
             if (!server.hasARGALinker()) {
                 JOptionPane.showMessageDialog(null, "Python ARGALinker (dundee_linker.py) is not running: this program will not link documents", "Service Missing", JOptionPane.WARNING_MESSAGE);
             } else {
+                Set<Pair<String,String>> missingDocs = new HashSet<>();
                 for (var x : ls) {
+                    if (missingDocs.contains(x))
+                        continue;
+                    if (!server.isDocumentLoaded(x.getKey(), x.getValue())) {
+                        JOptionPane.showMessageDialog(null, "Document " + x.getValue() +" from corpus " + x.getKey() +" is not loaded: cannot consider this: skipping", "Document Not Loaded", JOptionPane.WARNING_MESSAGE);
+                        missingDocs.add(x);
+                        continue;
+                    }
                     for (var y : ls) {
-                        if (!Objects.equals(x,y))
+                        if (missingDocs.contains(y))
+                            continue;
+                        if (!server.isDocumentLoaded(y.getKey(), y.getValue())) {
+                            JOptionPane.showMessageDialog(null, "Document " + y.getValue() +" from corpus " + y.getKey() +" is not loaded: cannot consider this: skipping", "Document Not Loaded", JOptionPane.WARNING_MESSAGE);
+                            missingDocs.add(y);
+                            continue;
+                        }
+                        if (!Objects.equals(x,y)) {
                             server.linkGraphs(x.getKey(), x.getValue(), y.getKey(), y.getValue());
+                        }
                     }
                 }
             }
@@ -162,6 +194,45 @@ public class ARGAGui {
         viewLoadedButton.addMouseListener(onClickMethod(me -> {
             var arga = server.returnDumpedArgumentation();
             popupFromArgaGraph(arga, "Loaded Argumentation");
+        }));
+        tabbedPane1.addChangeListener(e -> {
+            JTabbedPane tabbedPane = (JTabbedPane) e.getSource();
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            if (selectedIndex == 1) {
+                Object[][] var = server.getQueryableNodeWithInfo();
+                String[] schema = new String[]{"Node ID (I)", "Text"};
+                queryableNodes.setModel(new DefaultTableModel(var, schema));
+            } else {
+                DefaultTableModel model = (DefaultTableModel) queryableNodes.getModel();
+                model.setRowCount(0);
+            }
+        });
+        for (var x : AnalysisType.values()) {
+            analysisType.addItem(x.toString());
+        }
+        fillEntryPointsButton.addMouseListener(onClickMethod(e -> {
+            entries.removeAll();
+            DefaultListModel lm = new DefaultListModel();
+            for (int row : queryableNodes.getSelectedRows()) {
+                lm.addElement(queryableNodes.getValueAt(row, 0));
+            }
+            entries.setModel(lm);
+        }));
+        fillTargetsButton.addMouseListener(onClickMethod(e -> {
+            targets.removeAll();
+            DefaultListModel lm = new DefaultListModel();
+            for (int row : queryableNodes.getSelectedRows()) {
+                lm.addElement(queryableNodes.getValueAt(row, 0));
+            }
+            targets.setModel(lm);
+        }));
+        fillObjectivesButton.addMouseListener(onClickMethod(e -> {
+            objectives.removeAll();
+            DefaultListModel lm = new DefaultListModel();
+            for (int row : queryableNodes.getSelectedRows()) {
+                lm.addElement(queryableNodes.getValueAt(row, 0));
+            }
+            objectives.setModel(lm);
         }));
     }
 
@@ -184,7 +255,6 @@ public class ARGAGui {
 
     private void createUIComponents() {
         initLookAndFeel();
-        // TODO: place custom component creation code here
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
 
         if (!server.hasGoldenRetriever()) {
@@ -192,12 +262,8 @@ public class ARGAGui {
             System.exit(1);
         }
 
-//        HashMap<String, DefaultMutableTreeNode> corpora = new HashMap<>();
-//        HashMap<String, List<DefaultMutableTreeNode>> corpusContent = new HashMap<>();
         server.listCorpora().forEach(x-> {
             var basicElement = new DefaultMutableTreeNode(x);
-//            corpusContent.put(x, ls);
-//            corpora.put(x, basicElement);
             for (var y : server.listDocuments(x)) {
                 var child = new DefaultMutableTreeNode(y);
                 child.setAllowsChildren(false);

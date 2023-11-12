@@ -14,5 +14,3 @@ backports.zoneinfo==0.2.1;python_version<"3.9"
 jinja2
 wn==0.0.22
 python-multipart
-tk
-tkinter

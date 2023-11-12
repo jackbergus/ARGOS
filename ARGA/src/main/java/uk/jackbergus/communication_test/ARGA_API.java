@@ -26,6 +26,7 @@ import uk.jackbergus.DundeeLogic.MinedLinks;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 public class ARGA_API {
@@ -257,6 +258,31 @@ public class ARGA_API {
         }
 
         return g;
+    }
+
+
+    public Object[][] listQueryNodes() {
+        Set<Pair<String,String>> element = new HashSet<>();
+        for (var documents : resultingHyperText.references) {
+            if ((documents.mnemonicName != null) && (documents.mnemonicName.endsWith(forArgumentationName))) {
+                if (documents.content instanceof ArgaAnnotationEntry) {
+                    var casted = ((ArgaAnnotationEntry)documents.content);
+                    for (var object : casted.references) {
+                        if (object instanceof Sentence) {
+                            var node = new ArgNode(((Sentence) object));
+                            if (node.type.equals("I")) {
+                                element.add(new ImmutablePair<>(node.nodeID, node.text));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return element.stream().map(x -> new String[]{x.getKey(), x.getValue()}).toList().toArray(value -> new Object[value][2]);
+    }
+
+    public boolean isDocumentLoaded(String corpusSRC, String documentID) {
+        return slowDocumentRetrievalScanningByName(corpusSRC, documentID) != null;
     }
 
 

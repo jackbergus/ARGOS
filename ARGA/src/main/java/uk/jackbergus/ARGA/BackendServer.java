@@ -12,6 +12,9 @@ import uk.jackbergus.communication_test.ARGA_API;
 
 import java.util.List;
 
+/**
+ * Running ARGA as an HTTP server
+ */
 @SpringBootApplication
 @RestController
 public class BackendServer {
@@ -49,6 +52,10 @@ public class BackendServer {
         return backend.getDocumentWithinCorpus(corpusId).stream().toList();
     }
 
+    public boolean isDocumentLoaded(String corpusID, String documentID) {
+        return backend.isDocumentLoaded(corpusID, documentID);
+    }
+
     @GetMapping("/document/{corpusId}/{documentId}")
     public String getDocument(@PathVariable(name = "corpusId") String corpusId, @PathVariable(name = "documentId") String documentId) {
         return backend.getDocumentFullText(corpusId, documentId);
@@ -57,6 +64,10 @@ public class BackendServer {
     @GetMapping("/argument/{corpusId}/{documentId}")
     public ArgGraph getArgumentationGraph(@PathVariable(name = "corpusId") String corpusId, @PathVariable(name = "documentId") String documentId) {
         return backend.getDocumentArgumentationGraphOriginal(corpusId, documentId);
+    }
+
+    public Object[][] getQueryableNodeWithInfo() {
+        return backend.listQueryNodes();
     }
 
     @PostMapping("/load/{corpusId}/{documentId}")
