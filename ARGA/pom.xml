@@ -143,6 +143,19 @@
 				<artifactId>spring-boot-starter-test</artifactId>
 				<scope>test</scope>
 			</dependency>
+		<!-- https://mvnrepository.com/artifact/org.graphstream/gs-ui -->
+		<dependency>
+			<groupId>org.graphstream</groupId>
+			<artifactId>gs-ui</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.graphstream/gs-core -->
+		<dependency>
+			<groupId>org.graphstream</groupId>
+			<artifactId>gs-core</artifactId>
+			<version>1.2</version>
+		</dependency>
+
 	</dependencies>
 
 

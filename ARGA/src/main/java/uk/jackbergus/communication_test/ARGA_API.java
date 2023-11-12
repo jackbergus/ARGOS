@@ -212,12 +212,9 @@ public class ARGA_API {
     public boolean linkDocumentAcrossCorpora(String corpusSRC, String documentSRC, String corpusDST, String documentDST) {
         var ref = createSRCDSTRef(corpusSRC, documentSRC, corpusDST, documentDST);
         if (visitedPairs.add(ref)) {
-            var ref2 = createSRCDSTRef(corpusDST, documentDST,corpusSRC, documentSRC);
-            visitedPairs.add(ref2);
             var srcDocument = slowDocumentRetrievalScanningByName(corpusSRC, documentSRC);
             var dstDocument = slowDocumentRetrievalScanningByName(corpusDST, documentDST);
             crossLink(resolver, argaCrossLinkType, linker, corpusSRC, srcDocument, corpusDST, dstDocument);
-            crossLink(resolver, argaCrossLinkType, linker, corpusSRC, dstDocument, corpusDST, srcDocument);
             return true;
         }
         return false;

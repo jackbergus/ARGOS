@@ -53,12 +53,12 @@ public class BackendServer {
     }
 
     @PostMapping("/load/{corpusId}/{documentId}")
-    public String po(@PathVariable(name = "corpusId") String corpusId, @PathVariable(name = "documentId") String documentId) {
+    public String loadIntoDB(@PathVariable(name = "corpusId") String corpusId, @PathVariable(name = "documentId") String documentId) {
        return String.valueOf(backend.storeDocumentIntoARGADocument(corpusId, documentId));
     }
 
     @PostMapping("/link/{corpusSRC}/{documentSRC}/{corpusDST}/{documentDST}")
-    public String po(@PathVariable(name = "corpusSRC") String corpusSRC, @PathVariable(name = "documentSRC") String documentSRC,
+    public String linkGraphs(@PathVariable(name = "corpusSRC") String corpusSRC, @PathVariable(name = "documentSRC") String documentSRC,
                      @PathVariable(name = "corpusDST") String corpusDST, @PathVariable(name = "documentDST") String documentDST) {
         return String.valueOf(backend.linkDocumentAcrossCorpora(corpusSRC, documentSRC, corpusDST, documentDST));
     }
