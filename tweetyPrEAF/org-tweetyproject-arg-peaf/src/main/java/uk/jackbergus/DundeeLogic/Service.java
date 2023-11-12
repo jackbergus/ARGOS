@@ -26,7 +26,7 @@ public class Service {
 
     @PostMapping("/request")
     public AIFJSONAnalysisResult[] world(@RequestBody ArgGraph dundeeGraph,
-                                         @RequestHeader MultiValueMap<String, String> args) {
+                                         @RequestParam MultiValueMap<String, String> args) {
         String[] query = args.getOrDefault("query", Collections.emptyList()).toArray(String[]::new);
         if (query.length == 0) {
             // If there is no query entry-point, then return immediately the dundeeGraph without any further ado
@@ -56,6 +56,7 @@ public class Service {
                 for (String s : errorLevel) {
                     for (String noThread : noThreads) {
                         for (String value : type) {
+                            results[k] = new AIFJSONAnalysis();
                             results[k].query = query;
                             results[k].reasoner = new AIFJSONAnalysisReasoner();
                             results[k].result = new AIFJSONAnalysisResult();

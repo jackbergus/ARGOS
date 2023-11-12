@@ -26,11 +26,17 @@ public class ArgGraph {
         var result = new AIFJSONTheory();
         if ((nodes != null) && (!nodes.isEmpty())) {
             result.nodes = new AIFJSONNode[nodes.size()];
+            for (int i = 0; i<nodes.size(); i++) {
+                result.nodes[i] = nodes.get(i).asSouthamptonNode();
+            }
         } else {
             result.nodes = new AIFJSONNode[0];
         }
         if ((edges != null) && (!edges.isEmpty())) {
             result.edges = new AIFJSONEdge[edges.size()];
+            for (int i = 0; i<edges.size(); i++) {
+                result.edges[i] = edges.get(i).asSouthamptonEdge();
+            }
         } else {
             result.edges = new AIFJSONEdge[0];
         }

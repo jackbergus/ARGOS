@@ -6,7 +6,10 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.swingViewer.View;
 import org.graphstream.ui.swingViewer.Viewer;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import sdsProject.GraphStreamView;
+import uk.jackbergus.ARGA.utils.ProgressBarHandler;
 import uk.jackbergus.DundeeLogic.AnalysisType;
 import uk.jackbergus.DundeeLogic.ArgGraph;
 
@@ -28,6 +31,9 @@ import java.util.function.Consumer;
  */
 public class ARGAGui {
     public static BackendServer server;
+
+    JFrame frame;
+
     private JTree corpora;
     private JPanel mainPanel;
     private JButton text;
@@ -49,15 +55,17 @@ public class ARGAGui {
     private JList objectives;
     private JButton Run;
     private JTextArea queryResult;
+    private JProgressBar progressBar1;
+    private JSlider errorLevel;
     private JPanel graphPane;
 
     private static void initLookAndFeel() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
-                 UnsupportedLookAndFeelException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+//                 UnsupportedLookAndFeelException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     List<Pair<String,String>> ls = null;
@@ -68,18 +76,11 @@ public class ARGAGui {
 
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("ARGA GUI");
         ARGAGui.server = new BackendServer();
         var app = new ARGAGui();
         app.init();
-        frame.setContentPane(app.mainPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        GraphicsEnvironment env =
-                GraphicsEnvironment.getLocalGraphicsEnvironment();
-        frame.setMaximizedBounds(env.getMaximumWindowBounds());
-        frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
-        frame.pack();
-        frame.setVisible(true);
+
+
     }
 
     public void showGraphPopUp(String corpusID, String documentID) {
@@ -158,37 +159,71 @@ public class ARGAGui {
             showGraphPopUp(corpusID, documentID);
         }));
         load.addMouseListener(onClickMethod(me -> {
-            if (ls != null)
+            if (ls != null) {
+                ProgressBarHandler pb = new ProgressBarHandler(progressBar1, frame);
+                pb.init(0, ls.size());
+                int i = 0;
                 for (var x : ls) {
                     server.loadIntoDB(x.getKey(), x.getValue());
+                    pb.updateTo(i++);
                 }
+                pb.updateTo(0);
+                pb.beep();
+            }
         }));
         linkGraphs.addMouseListener(onClickMethod(me -> {
             if (!server.hasARGALinker()) {
                 JOptionPane.showMessageDialog(null, "Python ARGALinker (dundee_linker.py) is not running: this program will not link documents", "Service Missing", JOptionPane.WARNING_MESSAGE);
             } else {
                 Set<Pair<String,String>> missingDocs = new HashSet<>();
+                ProgressBarHandler pb = new ProgressBarHandler(progressBar1, frame);
+                pb.init(0, ls.size()*ls.size());
+
+//                final JDialog dlg = new JDialog(frame, "TITLE", true);
+//                JProgressBar dpb = new JProgressBar(0, 500);
+//                dlg.add(BorderLayout.CENTER, dpb);
+//                dlg.add(BorderLayout.NORTH, new JLabel("PROGRESS"));
+//                dlg.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+//                dlg.setSize(300, 75);
+//                dlg.setLocationRelativeTo(frame);
+//                Thread t = new Thread(() -> dlg.setVisible(true));
+//                t.start();
+                int i = 0;
                 for (var x : ls) {
-                    if (missingDocs.contains(x))
+                    if (missingDocs.contains(x)) {
+                        i = i+ls.size();
+
                         continue;
+                    }
                     if (!server.isDocumentLoaded(x.getKey(), x.getValue())) {
+                        i = i+ls.size();
+                        pb.updateTo(i);
                         JOptionPane.showMessageDialog(null, "Document " + x.getValue() +" from corpus " + x.getKey() +" is not loaded: cannot consider this: skipping", "Document Not Loaded", JOptionPane.WARNING_MESSAGE);
                         missingDocs.add(x);
                         continue;
                     }
                     for (var y : ls) {
-                        if (missingDocs.contains(y))
+                        if (missingDocs.contains(y)) {
+                            i++;
+                            pb.updateTo(i);
                             continue;
+                        }
                         if (!server.isDocumentLoaded(y.getKey(), y.getValue())) {
                             JOptionPane.showMessageDialog(null, "Document " + y.getValue() +" from corpus " + y.getKey() +" is not loaded: cannot consider this: skipping", "Document Not Loaded", JOptionPane.WARNING_MESSAGE);
                             missingDocs.add(y);
+                            i++;
+                            pb.updateTo(i);
                             continue;
                         }
                         if (!Objects.equals(x,y)) {
                             server.linkGraphs(x.getKey(), x.getValue(), y.getKey(), y.getValue());
                         }
+                        i++;
+                        pb.updateTo(i);
                     }
                 }
+                pb.updateTo(0);
+                pb.beep();
             }
         }));
         viewLoadedButton.addMouseListener(onClickMethod(me -> {
@@ -234,6 +269,39 @@ public class ARGAGui {
             }
             objectives.setModel(lm);
         }));
+        Run.addMouseListener(onClickMethod(e-> {
+            queryResult.setText("");
+            MultiValueMap<String, String> args = new LinkedMultiValueMap<>();
+            for (int i = 0, n = entries.getModel().getSize(); i<n; i++) {
+                args.add("query", entries.getModel().getElementAt(i).toString());
+            }
+            args.add("type",  analysisType.getItemAt(analysisType.getSelectedIndex()).toString());
+            if (isGroundedOtherwisePreferredCheckBox.isSelected()) {
+                args.add("semantics", "grounded");
+            } else {
+                args.add("semantics", "preferred");
+            }
+            for (int i = 0, n = targets.getModel().getSize(); i<n; i++) {
+                args.add("target", targets.getModel().getElementAt(i).toString());
+            }
+            for (int i = 0, n = objectives.getModel().getSize(); i<n; i++) {
+                args.add("objective", objectives.getModel().getElementAt(i).toString());
+            }
+            args.add("errorLevel", String.valueOf(((double)errorLevel.getValue())/(100.0)));
+            args.add("threads", "1");
+            queryResult.setText(server.southamptonQuery(args));
+        }));
+
+        frame = new JFrame("ARGA GUI");
+        frame.setContentPane(mainPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        GraphicsEnvironment env =
+                GraphicsEnvironment.getLocalGraphicsEnvironment();
+        frame.setMaximizedBounds(env.getMaximumWindowBounds());
+        frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
+        frame.pack();
+        frame.setVisible(true);
+
     }
 
     boolean areEnabled = false;

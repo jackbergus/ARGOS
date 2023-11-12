@@ -17,7 +17,9 @@ public class ArgGraph {
     @JsonIgnore
     public HashMap<String, ArgNode> nodeMap = null;
     @JsonIgnore
-    public HashMap<String, HashMap<String, List<ArgEdge>>> edgeMap = null;
+    public HashMap<String, HashMap<String, List<ArgEdge>>> outgoings = null;
+    @JsonIgnore
+    public HashMap<String, HashMap<String, List<ArgEdge>>> ingoings = null;
     @JsonIgnore
     public HashMap<String, HashSet<String>> locutorMap = null;
 
@@ -25,9 +27,10 @@ public class ArgGraph {
     @JsonIgnore
     public boolean initialised = false;
 
-    public void init() {
+    public ArgGraph init() {
         nodeMap = new HashMap<>();
-        edgeMap = new HashMap<>();
+        ingoings = new HashMap<>();
+        outgoings = new HashMap<>();
         if (nodes != null) {
             for (var x : nodes) {
                 nodeMap.put(x.nodeID, x);
@@ -36,12 +39,18 @@ public class ArgGraph {
         }
         if (edges != null) {
             for (var x : edges) {
-                if (!edgeMap.containsKey(x.fromID))
-                    edgeMap.put(x.fromID, new HashMap<>());
-                if (!edgeMap.get(x.fromID).containsKey(x.toID)) {
-                    edgeMap.get(x.fromID).put(x.toID, new ArrayList<>());
+                if (!outgoings.containsKey(x.fromID))
+                    outgoings.put(x.fromID, new HashMap<>());
+                if (!ingoings.containsKey(x.toID))
+                    ingoings.put(x.toID, new HashMap<>());
+                if (!outgoings.get(x.fromID).containsKey(x.toID)) {
+                    outgoings.get(x.fromID).put(x.toID, new ArrayList<>());
                 }
-                edgeMap.get(x.fromID).get(x.toID).add(x);
+                if (!ingoings.get(x.toID).containsKey(x.fromID)) {
+                    ingoings.get(x.toID).put(x.fromID, new ArrayList<>());
+                }
+                outgoings.get(x.fromID).get(x.toID).add(x);
+                ingoings.get(x.toID).get(x.fromID).add(x);
             }
 //            edges.clear();
         }
@@ -56,5 +65,6 @@ public class ArgGraph {
 //            locutions.clear();
         }
         initialised = true;
+        return this;
     }
 }

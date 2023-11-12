@@ -3,10 +3,8 @@ package uk.jackbergus.ARGA;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
 import uk.jackbergus.DundeeLogic.ArgGraph;
 import uk.jackbergus.communication_test.ARGA_API;
 
@@ -39,6 +37,11 @@ public class BackendServer {
     @GetMapping("/has/ARGALinker")
     public boolean hasARGALinker() {
         return backend.hasARGALinker();
+    }
+
+    @GetMapping("/southampton")
+    public String southamptonQuery(@RequestHeader MultiValueMap<String, String> args) {
+        return backend.southamptonQuery(args);
     }
 
     @GetMapping("/list-corpora")

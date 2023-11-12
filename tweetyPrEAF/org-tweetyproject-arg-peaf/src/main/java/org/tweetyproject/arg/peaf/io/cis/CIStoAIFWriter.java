@@ -61,8 +61,9 @@ public class CIStoAIFWriter {
      * @throws FileNotFoundException if given cis file is not found
      */
     public AIFTheory convert(String pathString) throws FileNotFoundException {
-        AIFCISReader aifAndCISReader = new AIFCISReader(pathString);
-        return aifAndCISReader.read();
+        throw new UnsupportedOperationException();
+        /*AIFCISReader aifAndCISReader = new AIFCISReader(pathString);
+        return aifAndCISReader.read();*/
     }
 
     public static void main(String[] args) throws IOException {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.util.MultiValueMap;
 import uk.jackbergus.ARGA.algorithms.AlgorithmicInstance;
 import uk.jackbergus.ARGA.algorithms.ontology.NAryRelationship;
 import uk.jackbergus.ARGA.algorithms.ontology.NAryRelationshipInstance;
@@ -26,7 +27,6 @@ import uk.jackbergus.DundeeLogic.MinedLinks;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 public class ARGA_API {
@@ -34,7 +34,7 @@ public class ARGA_API {
     static CollectionType minedLinksType = TypeFactory.defaultInstance().constructCollectionType(List.class, MinedLinks.class);
     static ObjectMapper mapper = new ObjectMapper();
 
-    AlgorithmicInstance mock_miner, dundee_linker;
+    AlgorithmicInstance mock_miner, dundee_linker, southamptonQuerier;
     ArgaHypertext resultingHyperText;
 
     NAryRelationship argaLinkType, argaCrossLinkType;
@@ -43,9 +43,9 @@ public class ARGA_API {
     HashMap<String, HashMap<String, String>> resolver;
 
     Corpora corpora;
-
-
     LinkExtractor linker;
+
+    SouthamptonQuerier sq;
 
     Pair<ArgaAnnotationEntry, ArgaDocument> cpLinker;
     HashSet<String> alreadyVisited;
@@ -67,6 +67,17 @@ public class ARGA_API {
         mock_miner.url = "http://127.0.0.1";
         mock_miner.isMultiPartContent = false;
         mock_miner.publisher = new Algorithm(mock_miner.name);
+
+
+        southamptonQuerier = new AlgorithmicInstance();
+        southamptonQuerier.affiliation = "pipeline";
+        southamptonQuerier.name = "southampton_querier";
+        southamptonQuerier.port = 8888;
+        southamptonQuerier.url = "http://127.0.0.1";
+        southamptonQuerier.isMultiPartContent = false;
+        southamptonQuerier.publisher = new Algorithm(southamptonQuerier.name);
+        sq = new SouthamptonQuerier(southamptonQuerier);
+
 
         // Access to the service
         corpora = new Corpora(mock_miner);
@@ -260,9 +271,17 @@ public class ARGA_API {
         return g;
     }
 
+    public String southamptonQuery(MultiValueMap<String, String> args) {
+        var g = representLoadedAsArgGraph();
+        if (g == null) {
+            return null;
+        }
+        return sq.query(g, args);
+    }
 
     public Object[][] listQueryNodes() {
         Set<Pair<String,String>> element = new HashSet<>();
+        var g = representLoadedAsArgGraph().init();
         for (var documents : resultingHyperText.references) {
             if ((documents.mnemonicName != null) && (documents.mnemonicName.endsWith(forArgumentationName))) {
                 if (documents.content instanceof ArgaAnnotationEntry) {
@@ -270,7 +289,7 @@ public class ARGA_API {
                     for (var object : casted.references) {
                         if (object instanceof Sentence) {
                             var node = new ArgNode(((Sentence) object));
-                            if (node.type.equals("I")) {
+                            if (node.type.equals("I") && (!g.ingoings.get(node.nodeID).isEmpty())) {
                                 element.add(new ImmutablePair<>(node.nodeID, node.text));
                             }
                         }
@@ -395,7 +414,7 @@ public class ARGA_API {
                 cpGraph.getKey().references.add(sentence);
                 map.put(node.nodeID, sentence);
             }
-            for (var indexedArgumentationEdges : graph.edgeMap.entrySet()) {
+            for (var indexedArgumentationEdges : graph.outgoings.entrySet()) {
                 var src = indexedArgumentationEdges.getKey();
                 for (var outgoingEdgesInfo : indexedArgumentationEdges.getValue().entrySet()) {
                     var dst = outgoingEdgesInfo.getKey();

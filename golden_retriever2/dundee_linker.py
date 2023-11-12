@@ -49,6 +49,8 @@ def extract_links(body:Item, request:Request=None):
     """
     d = dict()
     conv = dict()
+    if ((body.src is None) or (body.src == "null")) or ((body.dst is None) or (body.dst == "null")):
+        return None
     d["src"] = body.src
     d["dst"] = body.dst
     return actual_doing(request.query_params["src"], request.query_params["dst"], [d["src"]], [d["dst"]])
