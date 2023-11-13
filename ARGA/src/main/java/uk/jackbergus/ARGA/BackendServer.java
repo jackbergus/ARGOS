@@ -15,7 +15,9 @@ import java.util.List;
  */
 @SpringBootApplication
 @RestController
-public class BackendServer {
+public class BackendServer implements ARGAAPI{
+
+
 
     private ARGA_API backend = new ARGA_API();
     private ObjectMapper mapper = new ObjectMapper();
@@ -45,12 +47,14 @@ public class BackendServer {
     }
 
     @GetMapping("/list-corpora")
+    @Override
     public List<String> listCorpora() {
         // In this case, we return the plain text response "ok"
         return backend.listCorpora();
     }
 
     @GetMapping("/list-documents/{corpusId}")
+    @Override
     public List<String> listDocuments(@PathVariable(name = "corpusId") String corpusId) {
         return backend.getDocumentWithinCorpus(corpusId).stream().toList();
     }

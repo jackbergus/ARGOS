@@ -1,7 +1,5 @@
 package uk.jackbergus.communication_test;
 
-import javax.ws.rs.core.UriBuilder;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -11,17 +9,16 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
-import scala.util.parsing.combinator.testing.Str;
 import uk.jackbergus.ARGA.algorithms.AlgorithmicInstance;
 import uk.jackbergus.DundeeLogic.ArgGraph;
 
-public class SouthamptonQuerier {
+public class SouthamptonInterrogator {
     private final String server;
     private final int port;
 
     static ObjectMapper mapper = new ObjectMapper();
 
-    public SouthamptonQuerier(AlgorithmicInstance southamptonQuerier) {
+    public SouthamptonInterrogator(AlgorithmicInstance southamptonQuerier) {
         this.server = southamptonQuerier.url;
         this.port = southamptonQuerier.port;
     }

@@ -45,7 +45,7 @@ public class ARGA_API {
     Corpora corpora;
     LinkExtractor linker;
 
-    SouthamptonQuerier sq;
+    SouthamptonInterrogator sq;
 
     Pair<ArgaAnnotationEntry, ArgaDocument> cpLinker;
     HashSet<String> alreadyVisited;
@@ -76,7 +76,7 @@ public class ARGA_API {
         southamptonQuerier.url = "http://127.0.0.1";
         southamptonQuerier.isMultiPartContent = false;
         southamptonQuerier.publisher = new Algorithm(southamptonQuerier.name);
-        sq = new SouthamptonQuerier(southamptonQuerier);
+        sq = new SouthamptonInterrogator(southamptonQuerier);
 
 
         // Access to the service

@@ -1,17 +1,26 @@
 package uk.jackbergus.communication_test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import jackbergus.dgep.connections.ConnectionLogic;
 import jackbergus.dgep.connections.ProtocolLogic;
 import jackbergus.dgep.requests.Participant;
 import jackbergus.protocol.ProposerOrPublisher;
+import uk.jackbergus.ARGA.ARGAAPI;
 import uk.jackbergus.utils.UnionType;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 
-public class MainCommunication {
+public class MainCommunication implements ARGAAPI {
 
+    private final Participant participants;
+    private ObjectMapper mapper;
     private ProposerOrPublisher ARGAServer = null;
 
     public MainCommunication(String yamlConfigurationFilePath) {
@@ -50,7 +59,7 @@ public class MainCommunication {
                 e.printStackTrace();
             }
         }
-        var participants = new Participant();
+        this.participants = new Participant();
         if (!conf.containsKey("participants")) {
             System.err.println("ERROR: please specify the location where the participants are declared: 'participants'");
             System.exit(1);
@@ -63,7 +72,7 @@ public class MainCommunication {
                 participantsContent.append(participantsLine);
             }
             participantsReader.close();
-            ObjectMapper mapper = new ObjectMapper();
+            this.mapper = new ObjectMapper();
             Map<String, String> participantsMap = mapper.readValue(new File((String) conf.get("participants")), Map.class);
             for (Map.Entry<String, String> entry : participantsMap.entrySet()) {
                 String k = entry.getKey();
@@ -93,6 +102,9 @@ public class MainCommunication {
         var dl = pl.newDialogue(conf.getProperty("new_dialogue"), participants, "Proposer");
         this.ARGAServer = new ProposerOrPublisher(dl,  service, null, null);
     }
+
+
+
     public UnionType<String,Map<String,String>> run(String action, String data) {
         var monad = ARGAServer.returnResultsFromSubscribers(action, data);
         Map<String, String> servicesReply = new HashMap<>();
@@ -109,10 +121,57 @@ public class MainCommunication {
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    private Map<String,String> retrieveRightOutcome(String action, String data)  {
+        Set<String> tmp = new HashSet<>();
+        Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+        UnionType<String,Map<String,String>> outcome = null;
+        do {
+            outcome = run(action, data);
+            if (outcome.isLeft()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) { }
+            }
+        } while (outcome.isLeft());
+        return outcome.getRight();
+    }
+
+
+    @Override
+    public List<String> listCorpora() {
+        Set<String> tmp = new HashSet<>();
+        Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+        var outcome = retrieveRightOutcome("interactionA", "/corpora");
+        for (var cp : outcome.entrySet()) {
+            if (participants.participants.exists(cp.getKey())) {
+                List<String> yourClassList = new Gson().fromJson(cp.getValue(), listType);
+                tmp.addAll(yourClassList);
+            }
+        }
+        return new ArrayList<>(tmp);
+    }
+
+    @Override
+    public List<String> listDocuments(String corpusId)  {
+        Set<String> tmp = new HashSet<>();
+        Type listType = new TypeToken<ArrayList<String>>(){}.getType();
+        Map<String,String> outcome = retrieveRightOutcome("interactionA", "/corpora/"+corpusId);
+        for (var cp : outcome.entrySet()) {
+            if (participants.participants.exists(cp.getKey())) {
+                List<String> yourClassList = new Gson().fromJson(cp.getValue(), listType);
+                tmp.addAll(yourClassList);
+            }
+        }
+        return new ArrayList<>(tmp);
+    }
+
+
+    public static void main(String[] args) {
 //        legacy_runner();
         var arga = new MainCommunication("/home/giacomo/projects/tweetyPrEAF/ARGA/arga.properties");
-        System.out.println(arga.run("interactionA", "/corpora").toString());
+        for (String x : arga.listCorpora()) {
+            System.out.println(arga.listDocuments(x));
+        }
     }
 
     private static void legacy_runner() throws InterruptedException {
