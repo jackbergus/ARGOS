@@ -1,6 +1,9 @@
 package jackbergus.dgep;
 
 import haxe.root.*;
+import uk.jackbergus.ARGA.utils.HTTPRequests;
+
+import java.net.URI;
 
 @SuppressWarnings(value={"rawtypes", "unchecked"})
 public class RestfulHTTPConnections extends haxe.lang.HxObject
@@ -71,36 +74,39 @@ public class RestfulHTTPConnections extends haxe.lang.HxObject
 	
 	public java.lang.String postFile(java.lang.String path, java.lang.String content)
 	{
-		//line 79 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
-		if (( content == null )) 
-		{
-			//line 79 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
-			content = "";
-		}
-		
-		//line 79 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
-		return this.fileRequest(path, content, false);
+		return HTTPRequests.postRequest( this.url +path, content, null);
+//		//line 79 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
+//		if (( content == null ))
+//		{
+//			//line 79 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
+//			content = "";
+//		}
+//
+//		//line 79 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
+//		return this.fileRequest(path, content, false);
 	}
 	
 	
 	public java.lang.String get(java.lang.String path)
 	{
+		return HTTPRequests.getRequest(this.url+path);
 		//line 89 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
-		return restclient.RestClient.get(( this.url + path ), null, null);
+//		return restclient.RestClient.get(( this.url + path ), null, null);
 	}
 	
 	
 	public java.lang.String putFile(java.lang.String path, java.lang.String content)
 	{
-		//line 99 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
-		if (( content == null )) 
-		{
-			//line 99 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
-			content = "";
-		}
-		
-		//line 99 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
-		return this.fileRequest(path, content, true);
+		return HTTPRequests.putRequest(url+path, content, null);
+//		//line 99 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
+//		if (( content == null ))
+//		{
+//			//line 99 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
+//			content = "";
+//		}
+//
+//		//line 99 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/dgep/RestfulHTTPConnections.hx"
+//		return this.fileRequest(path, content, true);
 	}
 	
 	

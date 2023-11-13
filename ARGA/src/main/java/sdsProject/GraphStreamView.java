@@ -21,11 +21,7 @@
  * Gianluca Iselli - gianluca.iselli@studio.unibo.it
  */
 
-
-
 package sdsProject;
-
-
 
 import java.awt.BorderLayout;
 import java.awt.Toolkit;

@@ -1,18 +1,121 @@
 package uk.jackbergus.communication_test;
 
-import haxe.root.Sys;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jackbergus.dgep.connections.ConnectionLogic;
 import jackbergus.dgep.connections.ProtocolLogic;
 import jackbergus.dgep.requests.Participant;
-import jackbergus.protocol.EvaluatorOrSubscriberServer;
 import jackbergus.protocol.ProposerOrPublisher;
+import uk.jackbergus.utils.UnionType;
 
-import java.net.CookieHandler;
-import java.util.Arrays;
+import java.io.*;
+import java.util.*;
 
 public class MainCommunication {
 
+    private ProposerOrPublisher ARGAServer = null;
+
+    public MainCommunication(String yamlConfigurationFilePath) {
+        Properties conf = new Properties();
+        try {
+            FileReader reader = new FileReader(yamlConfigurationFilePath);
+            conf.load(reader);
+        } catch (IOException e) {
+            System.err.println("ERROR: unable to correctly parse the configuration file: " + yamlConfigurationFilePath);
+            System.exit(1);
+        }
+        if (!conf.containsKey("service")) {
+            System.err.println("ERROR: the service requires a service name: please specify it in 'service'");
+            System.exit(1);
+        }
+        String service = (String) conf.get("service");
+        String game = "";
+        if (!conf.containsKey("game_location")) {
+            System.err.println("ERROR: please specify the location where the game dialogue is located: 'game_location'");
+            System.exit(1);
+        }
+        if (conf.containsKey("isGameFOL") && Objects.equals(conf.get("isGameFOL"), "true")) {
+            System.err.println("ERROR: Java does not support generic Dialogue specification. Please provide the grounded version of it!");
+            System.exit(1);
+        } else {
+            try {
+                BufferedReader gameReader = new BufferedReader(new FileReader((String) conf.getProperty("game_location")));
+                String gameLine;
+                StringBuilder gameContent = new StringBuilder();
+                while ((gameLine = gameReader.readLine()) != null) {
+                    gameContent.append(gameLine);
+                }
+                gameReader.close();
+                game = gameContent.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        var participants = new Participant();
+        if (!conf.containsKey("participants")) {
+            System.err.println("ERROR: please specify the location where the participants are declared: 'participants'");
+            System.exit(1);
+        }
+        try {
+            BufferedReader participantsReader = new BufferedReader(new FileReader((String) conf.getProperty("participants")));
+            StringBuilder participantsContent = new StringBuilder();
+            String participantsLine;
+            while ((participantsLine = participantsReader.readLine()) != null) {
+                participantsContent.append(participantsLine);
+            }
+            participantsReader.close();
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, String> participantsMap = mapper.readValue(new File((String) conf.get("participants")), Map.class);
+            for (Map.Entry<String, String> entry : participantsMap.entrySet()) {
+                String k = entry.getKey();
+                String v = entry.getValue();
+                participants.add(k, v);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String url = "127.0.0.1";
+        int port = 5000;
+        if (conf.containsKey("broker_ip"))
+            url = conf.getProperty("broker_ip");
+        if (conf.containsKey("port"))
+            port = Integer.parseInt(conf.getProperty("broker_port"));
+        ConnectionLogic cl = new ConnectionLogic(url, port);
+        if (!conf.containsKey("protocol")) {
+            System.err.println("ERROR: please specify the location where the participants are declared: 'participants'");
+            System.exit(1);
+        }
+        ProtocolLogic pl = cl.newProtocol(conf.getProperty("protocol"), game);
+        if (!conf.containsKey("new_dialogue")) {
+            System.err.println("ERROR: please specify the name of the current dialogue instance: 'new_dialogue'");
+            System.exit(1);
+        }
+        var dl = pl.newDialogue(conf.getProperty("new_dialogue"), participants, "Proposer");
+        this.ARGAServer = new ProposerOrPublisher(dl,  service, null, null);
+    }
+    public UnionType<String,Map<String,String>> run(String action, String data) {
+        var monad = ARGAServer.returnResultsFromSubscribers(action, data);
+        Map<String, String> servicesReply = new HashMap<>();
+        if (monad.params[0] instanceof haxe.ds.StringMap) {
+            var m = (haxe.ds.StringMap) (monad.params[0]);
+            var it = (haxe.ds._StringMap.StringMapKeyIterator<String>) (m.keys());
+            while (it.hasNext()) {
+                var x = it.next();
+                servicesReply.put(x, m.get(x).toString());
+            }
+            return UnionType.generateRight(servicesReply);
+        } else {
+            return UnionType.generateLeft(Arrays.toString(monad.params));
+        }
+    }
+
     public static void main(String[] args) throws InterruptedException {
+//        legacy_runner();
+        var arga = new MainCommunication("/home/giacomo/projects/tweetyPrEAF/ARGA/arga.properties");
+        System.out.println(arga.run("interactionA", "/corpora").toString());
+    }
+
+    private static void legacy_runner() throws InterruptedException {
         String game = "\n" +
                 "\n" +
                 "BOGUS {\n" +
@@ -144,7 +247,7 @@ public class MainCommunication {
                 "                                 }\n" +
                 "                 }\n" +
                 "}\n";
-
+//        System.out.println(game);
 
         var p = new Participant();
         p.add("client", "Proposer");
@@ -156,7 +259,7 @@ public class MainCommunication {
 
         ProposerOrPublisher ARGAServer = new ProposerOrPublisher(dl,  "client", null, null);
         while (true) {
-            var monad = ARGAServer.returnResultsFromSubscribers("interactionA", "Hello, services!");
+            var monad = ARGAServer.returnResultsFromSubscribers("interactionA", "/corpora");
             if (monad.params[0] instanceof haxe.ds.StringMap) {
                 var m = (haxe.ds.StringMap) (monad.params[0]);
                 var it = (haxe.ds._StringMap.StringMapKeyIterator<String>) (m.keys());
@@ -169,14 +272,7 @@ public class MainCommunication {
                 Thread.sleep(10000);
             }
         }
-
-//        EvaluatorOrSubscriberServer server = new EvaluatorOrSubscriberServer(dl, 1, "interactionA", null, null, null, null, null) {
-//            @Override
-//            public String processInstruction(String input) {
-//                return "OK";
-//            }
-//        };
-//        server.server();
-
     }
+
+
 }

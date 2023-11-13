@@ -1,7 +1,11 @@
 import flask
 from corpora.funcs import *
-def parse_request(url_req:str):
-    ls = url_req.path.split("/")
+def parse_request(url_req):
+    ls = []
+    if isinstance(url_req, str):
+        ls = url_req.split("/")
+    else:
+        ls = url_req.path.split("/")
     if len(ls[0])==0:
         ls.pop(0)
     if len(ls[-1])==0:
