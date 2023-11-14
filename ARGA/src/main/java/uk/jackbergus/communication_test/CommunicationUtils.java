@@ -1,5 +1,6 @@
 package uk.jackbergus.communication_test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -29,13 +30,15 @@ public class CommunicationUtils {
         return result.toString();
     }
 
+    private static ObjectMapper mapper = new ObjectMapper();
+
     public static String getMultipartFile(String urlToRead, Map<String, String> fileToContent) {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(urlToRead);
         httpPost.setHeader("Content-type", "application/json");
         InputStream response = null;
         try {
-            StringEntity stringEntity = new StringEntity(ARGA_API.mapper.writeValueAsString(fileToContent));
+            StringEntity stringEntity = new StringEntity(mapper.writeValueAsString(fileToContent));
             httpPost.getRequestLine();
             httpPost.setEntity(stringEntity);
             response = httpClient.execute(httpPost).getEntity().getContent();

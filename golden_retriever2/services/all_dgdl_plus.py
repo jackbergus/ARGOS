@@ -1,4 +1,5 @@
 import os
+import sys
 
 import regex
 import itertools
@@ -34,8 +35,26 @@ def expand_with_generic(d, var_rgx, str, callable):
         end = m.end()
     return init + str[end:]
 
+def collectVars(var_rgx, str):
+    s = set()
+    for m in var_rgx.finditer(str):
+        for x in m.capturesdict()["varmatch"]:
+            s.add(x)
+    return s
+
+def bogus(d, c, str, rgc):
+    vars = collectVars(rgc, c["toexpand"][0])
+    if not len(vars)==1:
+        sys.exit(1)
+    x = vars.pop()
+    if x not in d:
+        sys.exit(2)
+    L = d[x]
+    return c["with"][0].join(map(lambda t : expand_with_generic(d, rgc, c["toexpand"][0], lambda d2,c2,str2,rgx2: t), d[x]))
+
 def expand_with_lambda(d, var_rgx, str):
     return expand_with_generic(d, var_rgx, str, lambda d, c, str, rgx: d.get(c["varmatch"][0], ""))
+
 
 class Generaliser:
     def __init__(self):
@@ -46,12 +65,24 @@ class Generaliser:
         # Determining the regions where the variables should be expanded with the values associated to the variables
         # in the finite set, and joining together all the retrieved instances with the provided string
         self.toexpand = regex.compile(r'⟦(?P<toexpand>[^[⟦⟧]+)⟧\(\"(?P<with>.+?)\"\)')
+        self.toexpand2 = regex.compile(r'⦃(?P<toexpand>[^[⟦⦃⦄⟧]+)⦄\(\"(?P<with>.+?)\"\)')
         # Delimiting the variables in the text
         self.tomatch = regex.compile(r'‖(?P<varmatch>[^‖]+)‖')
+        self.tomatch2 = regex.compile(r'≪(?P<varmatch>[^≫≪]+)≫')
 
-    def to_expand_part(self, str, with_):
-        return expand_with_generic(None, self.toexpand, str, lambda d, c, str, rgc: c["with"][0].join(
-            map(lambda x: expand_with_lambda(x, self.tomatch, c["toexpand"][0]), with_)))
+    def to_expand_part(self, str, with_, orig):
+        firstPass = expand_with_generic(None,
+                                   self.toexpand,
+                                   str,
+                                   lambda d, c, str, rgc: c["with"][0].join(map(lambda x: expand_with_lambda(x, self.tomatch, c["toexpand"][0]), with_))
+                                   )
+
+        secondPass = expand_with_generic(orig,
+                                        self.toexpand2,
+                                        firstPass,
+                                        lambda d, c, str, rgc: bogus(d,c,str,self.tomatch2)
+                                        )
+        return secondPass
 
     def readContent(self, s, filename_base, ext_base, returned=False):
         """
@@ -73,6 +104,7 @@ class Generaliser:
             for x in c["tail"]:
                 vals.append(x[1:].strip())
             d[var] = vals
+        orig = d
         d = list(product_dict(**d))
 
         e = None
@@ -82,7 +114,7 @@ class Generaliser:
             c = m.capturesdict()
             name = c["file"][0]
             region = c["region"][0]
-            tmp = self.to_expand_part(region, d)
+            tmp = self.to_expand_part(region, d, orig)
             with open(filename_base+"_"+name+ext_base, "w") as f:
                 f.write(tmp)
             if returned:

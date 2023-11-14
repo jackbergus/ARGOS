@@ -8,11 +8,14 @@ __version__ = "3.0"
 __maintainer__ = "Giacomo Bergami"
 __email__ = "bergamigiacomo@gmail.com"
 __status__ = "Production"
+
 import os
+import sys
 from contextlib import asynccontextmanager
 from typing import List
 
 import uvicorn
+import yaml
 from fastapi import FastAPI
 from fastapi import Request
 
@@ -22,28 +25,30 @@ from linker.routes import actual_doing
 def extract_nodes_keys(obj):
     d = dict()
     for item in obj["src"]["locutions"]:
-        for k,v in item.items():
+        for k, v in item.items():
             if k not in d:
                 d[k] = set()
             d[k].add(type(v).__name__)
     for item in obj["dst"]["locutions"]:
-        for k,v in item.items():
+        for k, v in item.items():
             if k not in d:
                 d[k] = set()
             d[k].add(type(v).__name__)
     return d
 
+
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
     print("init lifespan")
-    #Generates a file to determine that the service is successfully up and running
+    # Generates a file to determine that the service is successfully up and running
     with open("dundee_linker.ready", "w") as f:
         f.write("READY")
     print("Please open your browser at http://127.0.0.1:8001/redoc for a live documentation")
     yield
-    #Deletes the readiness file when the server goes down
+    # Deletes the readiness file when the server goes down
     os.unlink("dundee_linker.ready")
     print("clean up lifespan")
+
 
 app = FastAPI(lifespan=app_lifespan,
               title="dundee_linker",
@@ -66,6 +71,7 @@ class Item(BaseModel):
     src: str
     dst: str
 
+
 # @app.on_event("startup")
 # async def startup_event():
 #     """
@@ -86,8 +92,7 @@ class Item(BaseModel):
 #     os.unlink("dundee_linker.ready")
 
 @app.post('/extract_links')
-def extract_links(body:Item, request:Request=None,
-                  response_model=List[str]):
+def extract_links(body: Item, request: Request = None):
     """
     Uses Dundee's code for linking two documents expressed in AIF
     :param files:   Files being uploaded
@@ -102,5 +107,13 @@ def extract_links(body:Item, request:Request=None,
     d["dst"] = body.dst
     return actual_doing(request.query_params["src"], request.query_params["dst"], [d["src"]], [d["dst"]])
 
+
 if __name__ == "__main__":
-    uvicorn.run("dundee_linker:app", host="127.0.0.1", port=8001, reload=True, workers=1)
+    conf = dict()
+    try:
+        with open("service_linker.yaml", 'r') as stream:
+            conf = yaml.safe_load(stream)
+    except:
+        print("ERROR: unable to correctly parse the configuration file: 'service_miner.yaml'")
+        sys.exit(1)
+    uvicorn.run("rest_dundee_linker:app", host=conf["serviceIP"], port=int(conf["servicePort"]), reload=True, workers=1)

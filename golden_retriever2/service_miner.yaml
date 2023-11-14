@@ -3,7 +3,9 @@ broker_ip: "127.0.0.1"
 broker_port: 5000
 protocol: "test_game"
 new_dialogue: "0"
-interaction: "interactionA"
+interaction: "interactionB"
 participants: "../data/participants.json"
 game_location: "../data/game.txt"
 isGameFOL: false
+serviceIP: "127.0.0.1"
+servicePort: 8001

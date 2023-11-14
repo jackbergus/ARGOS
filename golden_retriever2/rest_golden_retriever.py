@@ -9,8 +9,11 @@ __maintainer__ = "Giacomo Bergami"
 __email__ = "bergamigiacomo@gmail.com"
 __status__ = "Production"
 import os
+import sys
 from typing import List
 
+import uvicorn
+import yaml
 from fastapi import FastAPI,Response,Request
 from corpora.no_server import parse_request
 
@@ -136,9 +139,13 @@ retriever = """
                    |:  ::::::    ,::' 
 """
 
-# if __name__ == "__main__":
-#     print(retriever)
-#     print("GOLDEN RETRIEVER (c) 2023 (Giacomo Bergami)")
-#     print("This simulates an ArgMine by returning json AIF for each document of interest.")
-#     print("Starting the retriever server...")
-#     #app.run()
+if __name__ == "__main__":
+    conf = dict()
+    try:
+        with open("service_miner.yaml", 'r') as stream:
+            conf = yaml.safe_load(stream)
+    except:
+        print("ERROR: unable to correctly parse the configuration file: 'service_miner.yaml'")
+        sys.exit(1)
+    uvicorn.run("rest_golden_retriever:app", host=conf["serviceIP"], port=int(conf["servicePort"]), reload=True, workers=1)
+

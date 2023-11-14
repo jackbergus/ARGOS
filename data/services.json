@@ -1,0 +1,5 @@
+{
+"miner": {"serviceName":"golden_retriever","port":8000, "url":"http://127.0.0.1"},
+"linker": {"serviceName":"dundee_linker","port":8001, "url":"http://127.0.0.1"},
+"querier": {"serviceName":"southampton_query","port":8888, "url":"http://127.0.0.1"}
+}
