@@ -15,6 +15,7 @@ import jackbergus.dgep.connections.ConnectionLogic;
 import jackbergus.dgep.connections.ProtocolLogic;
 import jackbergus.dgep.requests.Participant;
 import jackbergus.protocol.ProposerOrPublisher;
+import org.bouncycastle.asn1.cmp.PKIFreeText;
 import org.springframework.util.MultiValueMap;
 import jackbergus.utils.UnionType;
 
@@ -139,9 +140,12 @@ public class ArgumentationARGA extends ARGAAPI {
         return outcome.getRight();
     }
 
+    List<String> corporaCache = null;
 
     @Override
     public List<String> listCorpora() {
+        if (corporaCache != null)
+            return corporaCache;
         Set<String> tmp = new HashSet<>();
         Type listType = new TypeToken<ArrayList<String>>(){}.getType();
         var outcome = retrieveRightOutcome("interactionA", "/corpora");
@@ -151,11 +155,16 @@ public class ArgumentationARGA extends ARGAAPI {
                 tmp.addAll(yourClassList);
             }
         }
-        return new ArrayList<>(tmp);
+        corporaCache = new ArrayList<>(tmp);
+        return corporaCache;
     }
+
+    private HashMap<String, List<String>> documentsCache = new HashMap<>();
 
     @Override
     public List<String> listDocuments(String corpusId)  {
+        if (documentsCache.containsKey(corpusId))
+            return documentsCache.get(corpusId);
         Set<String> tmp = new HashSet<>();
         Type listType = new TypeToken<ArrayList<String>>(){}.getType();
         Map<String,String> outcome = retrieveRightOutcome("interactionA", "/corpora/"+corpusId);
@@ -165,7 +174,8 @@ public class ArgumentationARGA extends ARGAAPI {
                 tmp.addAll(yourClassList);
             }
         }
-        return new ArrayList<>(tmp);
+        documentsCache.put(corpusId, new ArrayList<>(tmp));
+        return documentsCache.get(corpusId);
     }
 
     @Override
@@ -176,8 +186,7 @@ public class ArgumentationARGA extends ARGAAPI {
         Map<String,String> outcome = retrieveRightOutcome("interactionA", "/get/"+corpusId+"/"+documentId);
         for (var cp : outcome.entrySet()) {
             if (participants.participants.exists(cp.getKey())) {
-                List<String> yourClassList = new Gson().fromJson(cp.getValue(), listType);
-                tmp.addAll(yourClassList);
+                tmp.add(cp.getValue());
             }
         }
         assert (tmp.size() == 1);
@@ -198,6 +207,7 @@ public class ArgumentationARGA extends ARGAAPI {
                 }
                 itemWithOwner.init();
                 itemWithOwner.json = cp.getValue();
+                tmp.add(itemWithOwner);
             }
         }
         assert (tmp.size() == 1);

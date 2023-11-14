@@ -10,4 +10,4 @@ def golden_linker(command:str):
         return None
     return json.dumps(actual_doing(d["src_id"], d["dst_id"], [d["src"]], [d["dst"]]), indent=2)
 
-setup_microservice("service_miner.yaml", golden_linker)
+setup_microservice("service_linker.yaml", golden_linker)

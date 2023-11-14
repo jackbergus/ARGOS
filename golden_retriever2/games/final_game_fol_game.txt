@@ -61,8 +61,10 @@ BOGUS {
           // the client to start publishing. Still, I can subscribe only if I haven’t done so yet.
           interaction { SubscribeinteractionA, { if { inspect(!in, {s}, PlayersinteractionA ) }  then {
                                                store(add, {s}, PlayersinteractionA, listener) &
-                                               move(add, next, StartPublishinteractionA, $Proposer, Proposer) &
-                                               move(add, next, SubscribeinteractionA, Evaluator)
+                                                move(add, next, StartPublishinteractionA, $Proposer, Proposer) & move(add, next, SubscribeinteractionA, Evaluator)
+ &  move(add, next, StartPublishinteractionB, $Proposer, Proposer) & move(add, next, SubscribeinteractionB, Evaluator)
+ &  move(add, next, StartPublishinteractionC, $Proposer, Proposer) & move(add, next, SubscribeinteractionC, Evaluator)
+
                                            }
                                       }
                       }
@@ -167,8 +169,10 @@ BOGUS {
           // the client to start publishing. Still, I can subscribe only if I haven’t done so yet.
           interaction { SubscribeinteractionB, { if { inspect(!in, {s}, PlayersinteractionB ) }  then {
                                                store(add, {s}, PlayersinteractionB, listener) &
-                                               move(add, next, StartPublishinteractionB, $Proposer, Proposer) &
-                                               move(add, next, SubscribeinteractionB, Evaluator)
+                                                move(add, next, StartPublishinteractionA, $Proposer, Proposer) & move(add, next, SubscribeinteractionA, Evaluator)
+ &  move(add, next, StartPublishinteractionB, $Proposer, Proposer) & move(add, next, SubscribeinteractionB, Evaluator)
+ &  move(add, next, StartPublishinteractionC, $Proposer, Proposer) & move(add, next, SubscribeinteractionC, Evaluator)
+
                                            }
                                       }
                       }
@@ -273,8 +277,10 @@ BOGUS {
           // the client to start publishing. Still, I can subscribe only if I haven’t done so yet.
           interaction { SubscribeinteractionC, { if { inspect(!in, {s}, PlayersinteractionC ) }  then {
                                                store(add, {s}, PlayersinteractionC, listener) &
-                                               move(add, next, StartPublishinteractionC, $Proposer, Proposer) &
-                                               move(add, next, SubscribeinteractionC, Evaluator)
+                                                move(add, next, StartPublishinteractionA, $Proposer, Proposer) & move(add, next, SubscribeinteractionA, Evaluator)
+ &  move(add, next, StartPublishinteractionB, $Proposer, Proposer) & move(add, next, SubscribeinteractionB, Evaluator)
+ &  move(add, next, StartPublishinteractionC, $Proposer, Proposer) & move(add, next, SubscribeinteractionC, Evaluator)
+
                                            }
                                       }
                       }

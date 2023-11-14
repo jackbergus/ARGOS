@@ -1,0 +1,146 @@
+02.02.2021 - TweetyProject 1.19
+  - The source repository of TweetyProject has now been moved to GitHub
+    (https://github.com/TweetyProjectTeam/TweetyProject). As a result, the main
+    package of TweetyProject has been changed from "net.sf.tweety" to
+    "org.tweetyproject".
+  New libraries: <none>
+  New functionalities:
+    - added parser, writer, and inconsistency measurement approaches to the
+      BPM library (org.tweetyproject.logics.bpm)
+    - added abstract argumentation synthesizing approach of Niskanen et al.
+      (org.tweetyproject.arg.dung)
+    - added strong equivalence check and independence check capabilities for
+      abstract argumentation (org.tweetyproject.arg.dung)
+    - added further optimisation approaches, in particular for combinatorial
+      optimisation: ant colony search, stochastic search, iterated local search,
+      binding for Gurobi (org.tweetyproject.math)
+    - added utility class for analysis performance of inconsistency measures
+      (org.tweetyproject.logics.commons)
+    - added aggregates and optimisation statements to the ASP library
+      (org.tweetyproject.lp.asp)
+  Minor changes:
+    - several improvements and bugfixes in the ADF library
+      (org.tweetyproject.arg.adf)
+    - improved bindings to satisfiability solvers (org.tweetyproject.logics.pl)
+    - bugfixes in ordering semantics for abstract argumentation
+      (org.tweetyproject.arg.dung)
+    - bugfixes in the ASP library (org.tweetyproject.lp.asp)
+29.01.2021 - TweetyProject 1.18 (not officially released)
+14.07.2020 - TweetyProject 1.17
+  New libraries:
+    - net.sf.tweety.logics.bpm: business process modelling library (stub)
+  New functionalities:
+    - added reasoner for bipolar argumentation (net.sf.tweety.arg.bipolar)
+    - added reasoner for weak admissibility, naive semantics, stage2 semantics,
+      cf2 semantics, scf2 semantics, scooc-naive semantics, qualified and
+      semi-qualified sigma-semantics, and ordering semantics in abstract
+      argumentation (net.sf.tweety.arg.dung)
+    - added inconsistency measures for abstract argumentation
+      (net.sf.tweety.arg.dung)
+    - added learning capabilities for abstract argumentation
+      (net.sf.tweety.arg.dung)
+    - added further reasoner for ranking semantics in abstract argumentation
+      (net.sf.tweety.arg.dung.rankings)
+    - added functionalities to enumerate interpolants in propositional
+      logic (net.sf.tweety.logics.pl)
+    - added iceberg inconsistency measure (net.sf.tweety.logics.pl)
+    - refactoring and extension of optimisation functionalities
+      (net.sf.tweety.math)
+    - refactoring and extension of abstract dialectical frameworks
+      (net.sf.tweety.arg.adf)
+  Minor changes:
+    - added XOR to various logics
+    - added convenience methods for easier adding multiple formulas
+      to belief bases
+    - bugfixes in ASP (net.sf.tweety.lp.asp)
+23.01.2020 - TweetyProject 1.16
+  New libraries:
+    - net.sf.tweety.arg.bipolar: bipolar argumentation frameworks
+    - net.sf.tweety.logics.qbf: Quantified Boolean Formula framework; bridges
+      to solvers Cadet, Caqe, GhostQ, and Qute; parser for QDIMACS and QCIR
+      format
+  New functionalities:
+    - added preferred, complete, grounded, stable and conflict-free semantics to
+      ADFs (net.sf.tweety.arg.adf)
+    - new ranking-based semantics for abstract argumentation
+      (net.sf.tweety.arg.rankings): Matt and Toni reasoner
+    - added first-order logic support to both ASPIC+ and ABA
+      (net.sf.tweety.arg.aspic, net.sf.tweety.arg.aba)
+    - added MAXSat solver functionalities and bridge to open-wbo
+      (net.sf.tweety.logics.pl)
+  Minor changes:
+    - improved enumeration of deductive arguments in net.sf.tweety.arg.deductive
+    - bugfixes in several ranking semantics (net.sf.tweety.arg.rankings)
+    - bugfixes in ASPIC+ (net.sf.tweety.arg.aspic)
+21.01.2020 - TweetyProject 1.15 (not officially released)
+18.07.2019 - TweetyProject 1.14
+  New libraries:
+    - net.sf.tweety.arg.rankings: ranking-based semantics for abstract
+      argumentation frameworks
+  New functionalities:
+    - New ranking-based semantics for abstract argumentation
+      (net.sf.tweety.arg.rankings): burden-based semantics, discussion-based
+      semantics, categorizer ranking semantics, social argumentation ranking
+      semantics, tuples ranking semantics.
+    - added several postulates for ranking-based semantics for abstract
+      argumentation (net.sf.tweety.arg.rankings); automatic evaluation through
+      postulate evaluation framework (net.sf.tweety.commons.postulates).
+    - Added implementation of ADFs (net.sf.tweety.arg.adf), in particular
+      reasoner for model, naive, and admissible semantics and parser for
+      the k++ ADF format.
+  Minor changes:
+    - Refactored the use of signatures in logics; signature is now an
+      attribute in commons.BeliefSet
+    - added more postulates for inconsistency measures for propositional
+      logic (net.sf.tweety.logics.pl.postulates); automatic evaluation through
+      postulate evaluation framework (net.sf.tweety.commons.postulates).
+    - Belief base iteration from text files (with one belief base per line)
+15.07.2019 - TweetyProject 1.13 (not officially released)
+23.01.2019 - TweetyProject 1.12
+  New libraries:  <none>
+  New functionalities:
+    - Complete ASP library overhaul (net.sf.tweety.lp.asp); added support for
+      ASPCore2 input syntax; added more solvers and tests
+    - Complete DL library overhaul (net.sf.tweety.logics.dl); added syntax and
+      semantic classes, and parser
+    - Added writer for ASPIC files (net.sf.tweety.arg.aspic.writer.AspicWriter)
+    - Added new reasoner for ASPIC
+      (net.sf.tweety.arg.aspic.reasoner.DirectionalReasoner)
+    - Added (naive) algorithm to compute betweenness centrality in graphs
+  Minor changes:
+    - Added further postulates for automatic postulate evaluation of
+      inconsistency measures (net.sf.tweety.logics.pl.postulates)
+    - Refactored inference modes for all reasoners (see
+      net.sf.tweety.commons.InferenceMode)
+    - Performance improvements for DeLP reasoner
+      (net.sf.tweety.arg.delp.reasoner.DelpReasoner)
+    - Overhauled examples for ASPIC (net.sf.tweety.arg.aspic.examples)
+    - Bugfixes probo reasoner (net.sf.tweety.arg.dung.reasoner.ProboReasoner)
+    - Unified naming of brute-force/naive reasoners (all are now prefixed by
+      "Simple")
+    - general bugfixing
+
+24.07.2018 - TweetyProject 1.11
+  New libraries:  <none>
+  New functionalities:
+    - Approximative reasoning for ASPIC+ (arg.aspic.reasoner.RandomAspicReasoner)
+    - TPTP format support in logics.fol; added support for equality
+    - Added classes for automatic postulate evaluation (see commons.postulates
+      for the framework and logics.pl.postulates for an example)
+    - Added a new graded semantics for abstract argumentation (see
+      arg.prob.reasoner.ProbabilisticRankingReasoner)
+    - Added a simple DPLL implementation in Java in logics.pl
+    - Added Dimacs parser in logics.pl
+  Minor changes:
+    - commons.Reasoner interface refactored; added additional interfaces
+      commons.QualitativeReasoner and commons.QuantativeReasoner;
+      removed obsolete commons.BeliefBaseReasoner, commons.Answer
+      and others
+    - folder "projects" is now folder "libraries"
+    - logics.lp.asp bugfixes and stream-lining
+    - logics.fol bugfixes and stream-lining
+    - removed arg.simpledeductive library, integrated functionalities into
+      net.sf.tweety.arg.deductive
+    - almost every library comes now with an "examples" package containing
+      example code
+    - general bugfixing

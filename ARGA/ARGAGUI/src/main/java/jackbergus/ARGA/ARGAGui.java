@@ -80,8 +80,6 @@ public class ARGAGui {
         ARGAGui.server = new BackendServer();
         var app = new ARGAGui();
         app.init();
-
-
     }
 
     public void showGraphPopUp(String corpusID, String documentID) {

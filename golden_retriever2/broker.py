@@ -102,6 +102,8 @@ def moves(dialogueID,initiator=None):
     with dialogueLock.gen_wlock():
         status, d = load_dialogue(dialogueID)
         if status == "ok":
+            if (initiator == "dundee_linker"):
+                print("DEBUG")
             talk_talk = d.get_available_moves(initiator)
             if ("response" in talk_talk) and (len(talk_talk["response"])>0):
                 print("Checking moves from: " + dialogueID + "/moves/" + initiator+" ["+",".join(map(lambda x : x["moveID"], talk_talk["response"][initiator]))+"]")
