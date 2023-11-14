@@ -1,4 +1,0 @@
-%---Some formulas in TPTP syntax
-fof(formula1,axiom,(r)).
-fof(formula2,axiom,(r=>p(a))).
-fof(formula3,axiom,(r<=>r&q(b))).
