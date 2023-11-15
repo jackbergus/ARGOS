@@ -3,6 +3,7 @@ package uk.jackbergus.ARGA;
 import DundeeLogic.ArgEdge;
 import DundeeLogic.ArgGraph;
 import DundeeLogic.ArgNode;
+import DundeeLogic.SouthamptonJSONInput;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,14 +38,11 @@ import static org.tweetyproject.arg.peaf.Runner.actualRunningForTheories;
 @RestController
 public class SouthamptonService implements Function<String, String> {
 
-    public static class SouthamptonJSONInput {
-        Map<String, List<String>> query;
-        ArgGraph                  graph;
-    }
+
 
     public static void main(String... args) {
-        String log4jConfPath = "log4j.properties";
-        PropertyConfigurator.configure(log4jConfPath);
+//        String log4jConfPath = "log4j.properties";
+//        PropertyConfigurator.configure(log4jConfPath);
         SpringApplication.run(SouthamptonService.class, args);
     }
 
@@ -150,10 +148,12 @@ public class SouthamptonService implements Function<String, String> {
     public String apply(String s) {
         var mapper = new ObjectMapper();
         try {
-            SouthamptonJSONInput q = mapper.readValue(s, SouthamptonJSONInput.class);
-            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            q.query.forEach(map::addAll);
-            var result = world(q.graph, map);
+            var q = new SouthamptonJSONInput(s);
+            MultiValueMap<String, String> args = new LinkedMultiValueMap<>();
+            for (var x : q.query.entrySet())
+                args.addAll(x.getKey(), x.getValue());
+            q.query.clear();
+            var result = world(q.graph, args);
             var res = mapper.writeValueAsString(result);
             return res;
         } catch (JsonProcessingException e) {

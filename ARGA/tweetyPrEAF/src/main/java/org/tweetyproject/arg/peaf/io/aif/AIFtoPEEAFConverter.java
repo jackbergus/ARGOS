@@ -199,7 +199,9 @@ public class AIFtoPEEAFConverter {
 
         // FIXME: if this is the case, eta can support all the i-nodes (this can be explored further.)
         if (candidateArguments.size() == 0) {
-            throw new NoNotAttackedINodeException("There is not a node that does not receive any attack in this AIF.");
+            System.err.println("There is not a node that does not receive any attack in this AIF.");
+            return null;
+//            throw new NoNotAttackedINodeException("There is not a node that does not receive any attack in this AIF.");
         }
 
         for (PEEAFTheory.Argument candidateArgument : candidateArguments) {

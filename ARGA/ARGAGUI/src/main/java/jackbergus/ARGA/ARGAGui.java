@@ -11,7 +11,7 @@ import org.graphstream.ui.swingViewer.Viewer;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import sdsProject.GraphStreamView;
-import jackbergus.ARGA.utils.ProgressBarHandler;
+import jackbergus.ARGA.javanatives.ProgressBarHandler;
 
 
 import javax.swing.*;

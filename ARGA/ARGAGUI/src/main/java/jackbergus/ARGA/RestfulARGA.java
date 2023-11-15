@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import jackbergus.ARGA.utils.Service;
+import jackbergus.ARGA.javanatives.Service;
 import jackbergus.communication_test.CommunicationUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,7 +14,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
@@ -57,7 +56,7 @@ public class RestfulARGA extends ARGAAPI {
     }
 
     @Override
-    public String southamptonQuery(ArgGraph g, MultiValueMap<String, String> args) {
+    public String southamptonQuery(ArgGraph g, Map<String, List<String>> args) {
         var x = UriComponentsBuilder.fromUriString(getProbServer()).port(getProbPort()).path("request");
 //        var x = UriBuilder.fromUri(server).port(port).path("request");
         for (var key : args.keySet()) {
@@ -145,7 +144,7 @@ public class RestfulARGA extends ARGAAPI {
             try {
                 var str = CommunicationUtils.getHTML(getRetrieverServer() + ":" + getRetrieverPort() + "/mine/" + corpusId + "/" + documentId);
                 ArgGraph itemWithOwner = mapper.readValue(str, ArgGraph.class);
-                itemWithOwner.init();
+                itemWithOwner.init(null);
                 itemWithOwner.json = str;
                 return itemWithOwner;
             } catch (Exception e) {

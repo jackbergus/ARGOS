@@ -1,12 +1,13 @@
 package jackbergus.ARGA;
 
+import DundeeLogic.ArgEdge;
 import DundeeLogic.ArgGraph;
-import DundeeLogic.ArgNode;
 import DundeeLogic.MinedLinks;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import jackbergus.ARGA.utils.Conversions;
+import com.google.common.collect.Sets;
+import jackbergus.ARGA.javanatives.Conversions;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.MultiValueMap;
@@ -289,7 +290,9 @@ public class Database  {
      */
     public boolean linkDocumentAcrossCorpora(String corpusSRC, String documentSRC, String corpusDST, String documentDST) {
         var ref = createSRCDSTRef(corpusSRC, documentSRC, corpusDST, documentDST);
+        var ref2 = createSRCDSTRef(corpusDST, documentDST,corpusSRC, documentSRC);
         if (visitedPairs.add(ref)) {
+            visitedPairs.add(ref2);
             var srcDocument = slowDocumentRetrievalScanningByName(corpusSRC, documentSRC);
             var dstDocument = slowDocumentRetrievalScanningByName(corpusDST, documentDST);
             crossLink(resolver, argaCrossLinkType, corpusSRC, srcDocument, corpusDST, dstDocument);
@@ -304,7 +307,7 @@ public class Database  {
 
     public Object[][] listQueryNodes() {
         Set<Pair<String,String>> element = new HashSet<>();
-        var g = representLoadedAsArgGraph().init();
+        var g = representLoadedAsArgGraph().makeSouthamptonCompliant().init(null);
         for (var documents : resultingHyperText.references) {
             if ((documents.mnemonicName != null) && (documents.mnemonicName.endsWith(forArgumentationName))) {
                 if (documents.content instanceof ArgaAnnotationEntry) {
@@ -312,8 +315,15 @@ public class Database  {
                     for (var object : casted.references) {
                         if (object instanceof Sentence) {
                             var node = Conversions.toArgNode(((Sentence) object));
-//                            var node = new ArgNode(((Sentence) object));
-                            if (node.type.equals("I") && (!g.ingoings.get(node.nodeID).isEmpty())) {
+                            if ((Objects.equals(node.type,"RA")) && (!g.ingoings.getOrDefault(node.nodeID, Collections.emptyMap()).isEmpty())) {
+                                element.add(new ImmutablePair<>(node.nodeID, node.text));
+                            } else if (Objects.equals(node.type,"MA") &&
+                                       (g.ingoings.getOrDefault(node.nodeID, Collections.emptyMap()).size() == 1) &&
+                                       (g.outgoings.getOrDefault(node.nodeID, Collections.emptyMap()).size() == 1) &&
+                                    (Objects.equals(g.nodeMap.get(g.ingoings.get(node.nodeID).keySet().iterator().next()).type, "I"))&&
+                                    (Objects.equals(g.nodeMap.get(g.outgoings.get(node.nodeID).keySet().iterator().next()).type, "I"))) {
+                                element.add(new ImmutablePair<>(node.nodeID, node.text));
+                            } else if ((Objects.equals(node.type,"CA")||(Objects.equals(node.type,"I"))) ) {
                                 element.add(new ImmutablePair<>(node.nodeID, node.text));
                             }
                         }
@@ -361,7 +371,7 @@ public class Database  {
             }
         }
 
-        return g;
+        return g.makeSouthamptonCompliant().init(null);
     }
 
 

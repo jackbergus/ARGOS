@@ -1,11 +1,11 @@
 package jackbergus.ARGA;
 
 import DundeeLogic.ArgGraph;
-import jackbergus.ARGA.utils.Service;
-import org.springframework.util.MultiValueMap;
+import jackbergus.ARGA.javanatives.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class ARGAAPI {
 
@@ -23,7 +23,7 @@ public abstract class ARGAAPI {
     public abstract ArgGraph getArgumentationGraph(String corpusId, String documentId);
     public abstract boolean hasGoldenRetriever();
     public abstract boolean hasARGALinker();
-    public abstract String southamptonQuery(ArgGraph g, MultiValueMap<String, String> args);
+    public abstract String southamptonQuery(ArgGraph g, Map<String, List<String>> args);
     public abstract String link(String src, String DST, HashMap<String, String> map);
 
 

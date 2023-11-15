@@ -2,21 +2,18 @@ package jackbergus.ARGA;
 
 import DundeeLogic.ArgGraph;
 import DundeeLogic.MinedLinks;
+import DundeeLogic.SouthamptonJSONInput;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import jackbergus.ARGA.utils.Service;
+import jackbergus.ARGA.javanatives.Service;
 import jackbergus.dgep.connections.ConnectionLogic;
 import jackbergus.dgep.connections.ProtocolLogic;
 import jackbergus.dgep.requests.Participant;
 import jackbergus.protocol.ProposerOrPublisher;
-import org.bouncycastle.asn1.cmp.PKIFreeText;
-import org.springframework.util.MultiValueMap;
 import jackbergus.utils.UnionType;
 
 import java.io.BufferedReader;
@@ -205,7 +202,7 @@ public class ArgumentationARGA extends ARGAAPI {
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                itemWithOwner.init();
+                itemWithOwner.init(null);
                 itemWithOwner.json = cp.getValue();
                 tmp.add(itemWithOwner);
             }
@@ -224,29 +221,14 @@ public class ArgumentationARGA extends ARGAAPI {
         return true;
     }
 
-    private static class SouthamptonRequest {
-        Map<String, Collection<String>> query;
-        ArgGraph g;
-
-    }
 
     @Override
-    public String southamptonQuery(ArgGraph g, MultiValueMap<String, String> args) {
-        SouthamptonRequest q = new SouthamptonRequest();
-        Multimap<String, String> query = HashMultimap.create();
-        for (var x : args.keySet()) {
-            query.putAll(x, args.get(x));
-        }
-        q.query= query.asMap();
-        q.g = g;
-        String str = null;
-        try {
-            str = mapper.writeValueAsString(q);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+    public String southamptonQuery(ArgGraph g, Map<String, List<String>> args) {
+        SouthamptonJSONInput j = new SouthamptonJSONInput();
+        j.query = args;
+        j.graph = g;
         StringBuilder sb = new StringBuilder();
-        Map<String,String> outcome = retrieveRightOutcome("interactionC", str);
+        Map<String,String> outcome = retrieveRightOutcome("interactionC", j.toString());
         for (var cp : outcome.entrySet()) {
             if (participants.participants.exists(cp.getKey())) {
                 sb.append(cp.getValue());

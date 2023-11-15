@@ -33,7 +33,7 @@ public class EvaluatorOrSubscriber extends haxe.lang.HxObject
 		//line 36 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/protocol/EvaluatorOrSubscriber.hx"
 		double sleep1 = ( (haxe.lang.Runtime.eq(sleep, null)) ? (0.5) : (((double) (haxe.lang.Runtime.toDouble(sleep)) )) );
 		//line 37 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/protocol/EvaluatorOrSubscriber.hx"
-		__hx_this.protocol = new jackbergus.protocol.ProtocolService(((jackbergus.dgep.connections.DialogueLogic) (c) ), haxe.lang.Runtime.toString(( servicePrefix + serviceId )), ((java.lang.Object) (sleep1) ));
+		__hx_this.protocol = new jackbergus.protocol.ProtocolService(((jackbergus.dgep.connections.DialogueLogic) (c) ), haxe.lang.Runtime.toString(( servicePrefix  )), ((java.lang.Object) (sleep1) ));
 		//line 38 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/protocol/EvaluatorOrSubscriber.hx"
 		__hx_this.fut = inFuture1;
 		//line 39 "/home/giacomo/projects/tweetyPrEAF/broker/haxe/src/jackbergus/protocol/EvaluatorOrSubscriber.hx"

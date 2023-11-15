@@ -93,6 +93,8 @@ public class Runner {
             AIFTheory aifTheory = reader.read(aifJSON);
             AIFtoPEEAFConverter aifConverter = new AIFtoPEEAFConverter();
             PEEAFTheory peeafTheory = aifConverter.convert(aifTheory);
+            if (peeafTheory == null)
+                return null;
             PEEAFToPEAFConverter peeafConverter = new PEEAFToPEAFConverter();
             peeafTheory.prettyPrint();
 

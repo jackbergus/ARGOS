@@ -1,7 +1,7 @@
 package jackbergus.dgep;
 
 
-import jackbergus.ARGA.utils.HTTPRequests;
+import jackbergus.ARGA.javanatives.HTTPRequests;
 
 @SuppressWarnings(value={"rawtypes", "unchecked"})
 public class RestfulHTTPConnections extends haxe.lang.HxObject

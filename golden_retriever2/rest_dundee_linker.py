@@ -116,4 +116,4 @@ if __name__ == "__main__":
     except:
         print("ERROR: unable to correctly parse the configuration file: 'service_miner.yaml'")
         sys.exit(1)
-    uvicorn.run("rest_dundee_linker:app", host=conf["serviceIP"], port=int(conf["servicePort"]), reload=True, workers=1)
+    uvicorn.run("rest_dundee_linker:app", host=conf["serviceIP"], port=int(conf["servicePort"]), workers=1)
