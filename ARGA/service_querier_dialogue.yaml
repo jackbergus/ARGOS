@@ -1,0 +1,11 @@
+service: "southampton_query"
+broker_ip: "broker"
+broker_port: 5000
+protocol: "test_game"
+new_dialogue: "0"
+interaction: "interactionC"
+participants: "../data/participants.json"
+game_location: "../data/game2.txt"
+isGameFOL: false
+serviceIP: "0.0.0.0"
+servicePort: 8888

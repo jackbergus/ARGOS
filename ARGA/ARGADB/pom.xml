@@ -9,6 +9,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>uk.jackbergus.ARGA.MainBogus</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <artifactId>ARGADB</artifactId>
 
     <properties>

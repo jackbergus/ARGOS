@@ -10,6 +10,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tweetyPrEAF</artifactId>
+<!--    <packaging>pom</packaging>-->
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass> uk.jackbergus.ARGA.SouthamptonArgumentation</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <repositories>
         <repository>
@@ -194,19 +207,18 @@
             <version>0.1</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>uk.jackbergus</groupId>
-            <artifactId>ARGAGUI</artifactId>
-            <version>0.1</version>
-            <scope>compile</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>uk.jackbergus</groupId>-->
+<!--            <artifactId>ARGAGUI</artifactId>-->
+<!--            <version>0.1</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.sat4j/org.sat4j.core -->
         <dependency>
             <groupId>org.sat4j</groupId>
             <artifactId>org.sat4j.core</artifactId>
             <version>2.3.1</version>
         </dependency>
-
     </dependencies>
 
 </project>

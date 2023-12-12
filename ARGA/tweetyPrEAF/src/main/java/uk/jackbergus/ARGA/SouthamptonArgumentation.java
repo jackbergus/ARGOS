@@ -7,6 +7,6 @@ import java.io.FileNotFoundException;
 
 public class SouthamptonArgumentation {
     public static void main(String args[]) throws FileNotFoundException {
-        DGDLMicroservice.setup_microservice(new File("service_querier.yaml"), new SouthamptonService());
+        DGDLMicroservice.setup_microservice(new File("service_querier_dialogue.yaml"), new SouthamptonService());
     }
 }
