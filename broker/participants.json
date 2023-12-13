@@ -1,7 +1,0 @@
-{"participants":
- [
- {"name":"client", "player":"Proposer"},
- {"name":"service1", "player":"Evaluator"},
- {"name":"service2", "player":"Evaluator"}
- ]
-}

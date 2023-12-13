@@ -1,0 +1,2 @@
+#!/bin/bash
+java -cp "./ARGAGUI/target/ARGAGUI-0.1-jar-with-dependencies.jar:./target/ARGA-0.1-jar-with-dependencies.jar:./tweetyPrEAF/target/tweetyPrEAF-0.1-jar-with-dependencies.jar:./legacyProjects/target/legacyProjects-0.1-jar-with-dependencies.jar:./GSM/target/GSM-0.1-jar-with-dependencies.jar:./haxe_broker_api/target/haxe_broker_api-0.1-jar-with-dependencies.jar:./sdsProject/target/sdsProject-0.1-jar-with-dependencies.jar:./ARGADB/target/ARGADB-0.1-jar-with-dependencies.jar" jackbergus.ARGA.ARGAGui

@@ -35,7 +35,7 @@ public class BackendServer {
     private static void initialize() {
         Properties conf = new Properties();
         try {
-            FileReader reader = new FileReader("/home/giacomo/projects/tweetyPrEAF/ARGA/arga.properties");
+            FileReader reader = new FileReader("arga.properties");
             conf.load(reader);
         } catch (IOException e) {
             System.err.println("ERROR: unable to correctly parse the configuration file: ");

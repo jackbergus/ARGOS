@@ -61,12 +61,12 @@ public class ARGAGui {
     private JPanel graphPane;
 
     private static void initLookAndFeel() {
-//        try {
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-//        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
-//                 UnsupportedLookAndFeelException e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                 UnsupportedLookAndFeelException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     List<Pair<String,String>> ls = null;
@@ -79,6 +79,7 @@ public class ARGAGui {
     public static void main(String[] args) {
         ARGAGui.server = new BackendServer();
         var app = new ARGAGui();
+//        app.createUIComponents();
         app.init();
     }
 
@@ -151,11 +152,19 @@ public class ARGAGui {
 
     private void init() {
         text.addMouseListener(onClickMethod(e -> {
-            contentPane.setContentType("text/html");
-            contentPane.setText("<html><body>"+server.getDocument(corpusID, documentID)+"</body></html>");
+            if ((corpusID != null) && (documentID != null)) {
+                contentPane.setContentType("text/html");
+                contentPane.setText("<html><body>"+server.getDocument(corpusID, documentID)+"</body></html>");
+            } else {
+                System.err.println("No document being selected!");
+            }
         }));
         graph.addMouseListener(onClickMethod(e -> {
-            showGraphPopUp(corpusID, documentID);
+            if ((corpusID != null) && (documentID != null)) {
+                showGraphPopUp(corpusID, documentID);
+            } else {
+                System.err.println("No document being selected! (2)");
+            }
         }));
         load.addMouseListener(onClickMethod(me -> {
             if (ls != null) {

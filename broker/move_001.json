@@ -1,6 +1,0 @@
-{
-  "moveID": "Subscribe",
-  "speaker": "service1",
-  "target": "client",
-  "reply": {"s":  "service1"}
-}

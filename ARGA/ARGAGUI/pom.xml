@@ -10,18 +10,31 @@
     <modelVersion>4.0.0</modelVersion>
 <!--    <packaging>pom</packaging>-->
 
-
     <build>
-    <plugins>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-                <mainClass>uk.jackbergus.ARGA.ARGAGui</mainClass>
-            </configuration>
-        </plugin>
-    </plugins>
-</build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+
+<!--    <build>-->
+<!--    <plugins>-->
+<!--        <plugin>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            <configuration>-->
+<!--                <mainClass>uk.jackbergus.ARGA.ARGAGui</mainClass>-->
+<!--            </configuration>-->
+<!--        </plugin>-->
+<!--    </plugins>-->
+<!--</build>-->
 
     <artifactId>ARGAGUI</artifactId>
     <dependencies>
@@ -48,6 +61,11 @@
             <artifactId>sdsProject</artifactId>
             <version>0.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
         </dependency>
     </dependencies>
 

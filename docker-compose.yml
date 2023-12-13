@@ -1,0 +1,59 @@
+---
+version: "3.9"
+services:
+  broker:
+    image: argos:Dockerfile
+    container_name: broker
+    hostname: broker
+    working_dir: /root/golden_retriever2/
+    command: python3 /root/golden_retriever2/broker.py
+    ports:
+      - 5000:5000
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - http://localhost:5000/
+      retries: 3
+      timeout: 5s
+  retriever:
+    container_name: retriever
+    hostname: retriever
+    image: argos:Dockerfile
+    working_dir: /root/golden_retriever2/
+    command: python3 /root/golden_retriever2/dgdl_golden_retriever.py
+    ports:
+      - 8001:8001
+    depends_on:
+      - broker
+  linker:
+    container_name: linker
+    hostname: linker
+    image: argos:Dockerfile
+    working_dir: /root/golden_retriever2/
+    command: python3 /root/golden_retriever2/dgdl_dundee_linker.py
+    ports:
+      - 8000:8000
+    depends_on:
+      - broker
+      - retriever
+    healthcheck:
+      test:
+        - CMD
+        - test
+        - -d
+        - dundee_linker.ready
+      retries: 30
+      timeout: 60s
+  querier:
+    container_name: querier
+    hostname: querier
+    image: argos:Dockerfile
+    working_dir: /root/ARGA/
+    command: /usr/lib/jvm/jdk-19/bin/java -cp "./ARGAGUI/target/ARGAGUI-0.1-jar-with-dependencies.jar:./target/ARGA-0.1-jar-with-dependencies.jar:./tweetyPrEAF/target/tweetyPrEAF-0.1-jar-with-dependencies.jar:./legacyProjects/target/legacyProjects-0.1-jar-with-dependencies.jar:./GSM/target/GSM-0.1-jar-with-dependencies.jar:./haxe_broker_api/target/haxe_broker_api-0.1-jar-with-dependencies.jar:./sdsProject/target/sdsProject-0.1-jar-with-dependencies.jar:./ARGADB/target/ARGADB-0.1-jar-with-dependencies.jar" uk.jackbergus.ARGA.SouthamptonArgumentation
+    ports:
+      - 8888:8888
+    depends_on:
+      - broker
+      - retriever
+      - linker

@@ -142,7 +142,7 @@ retriever = """
 if __name__ == "__main__":
     conf = dict()
     try:
-        with open("service_miner.yaml", 'r') as stream:
+        with open("service_miner_restful.yaml", 'r') as stream:
             conf = yaml.safe_load(stream)
     except:
         print("ERROR: unable to correctly parse the configuration file: 'service_miner.yaml'")

@@ -111,7 +111,7 @@ def extract_links(body: Item, request: Request = None):
 if __name__ == "__main__":
     conf = dict()
     try:
-        with open("service_linker.yaml", 'r') as stream:
+        with open("service_linker_restful.yaml", 'r') as stream:
             conf = yaml.safe_load(stream)
     except:
         print("ERROR: unable to correctly parse the configuration file: 'service_miner.yaml'")
