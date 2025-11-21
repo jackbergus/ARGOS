@@ -1,6 +1,6 @@
 # ARGOS
 
-A Microservice orchestration Premiere with DLDG
+A Microservice orchestration Premiere with DGDL (a dummy language)
 
 
 
